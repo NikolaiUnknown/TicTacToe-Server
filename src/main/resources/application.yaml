@@ -1,3 +1,12 @@
 spring:
     application:
         name: server
+    datasource:
+        url: jdbc:mysql://localhost:3306/TicTacToe?allowPublicKeyRetrieval=true&useSSL=false
+        username: root 
+        password: root
+security:
+    secret:
+        yb7ZwGe3DWNp8yFvThZ+vYc9GVVSwz6+jFhmsHC/5p4=
+    lifetime:
+        300000
