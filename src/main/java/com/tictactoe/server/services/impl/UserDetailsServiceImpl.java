@@ -23,5 +23,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             .orElseThrow(() -> new UsernameNotFoundException("Player not found"));
         return new UserDetailsImpl(player);
     }
+
+    
     
 }
