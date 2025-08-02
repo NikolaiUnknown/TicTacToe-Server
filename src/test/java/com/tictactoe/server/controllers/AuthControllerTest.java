@@ -1,8 +1,7 @@
 package com.tictactoe.server.controllers;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -23,6 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tictactoe.server.config.SecurityConfig;
 import com.tictactoe.server.dto.LoginRequestDto;
 import com.tictactoe.server.dto.RegisterRequestDto;
+import com.tictactoe.server.exceptions.NicknameIsUsedException;
 import com.tictactoe.server.mappers.PlayerMapper;
 import com.tictactoe.server.models.Player;
 import com.tictactoe.server.security.JwtCore;
@@ -72,7 +72,8 @@ public class AuthControllerTest {
         mockMvc.perform(post("/api/v1/auth/signin")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(loginRequestDto)))
-                    .andExpect(status().isUnauthorized());
+                    .andExpect(status().isUnauthorized())
+                    .andExpect(jsonPath("$.errorMsg").value("Nickname or password is incorrect!"));
     }
 
     @Test
@@ -85,5 +86,37 @@ public class AuthControllerTest {
                     .andExpect(status().isCreated());
         verify(playerService).registerNewPlayer(any(Player.class));
     }
-    //TODO tests for other case 
+    @Test
+    void testSignUpWithAlreadyUsedNickname() throws Exception {
+        RegisterRequestDto registerRequestDto = new RegisterRequestDto("nickname","password");
+        when(playerMapper.registerDtoToPlayer(registerRequestDto)).thenReturn(new Player());
+        var exception = new NicknameIsUsedException("Nickname test is already use!");
+        doThrow(exception).when(playerService).registerNewPlayer(any(Player.class));
+        mockMvc.perform(post("/api/v1/auth/signup")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(registerRequestDto)))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.errorMsg").value(exception.getMessage()));
+    }
+
+    @Test
+    void testSignUpWithInvalidNickname() throws Exception {
+        RegisterRequestDto registerRequestDto = new RegisterRequestDto("nic","password");
+        mockMvc.perform(post("/api/v1/auth/signup")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(registerRequestDto)))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.errorMsg").value("Nickname length must be more than 4;\n"));
+    }
+
+    @Test
+    void testSignUpWithInvalidPassword() throws Exception {
+        RegisterRequestDto registerRequestDto = new RegisterRequestDto("nickname","pass");
+        mockMvc.perform(post("/api/v1/auth/signup")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(registerRequestDto)))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.errorMsg").value("Password length must be more than 6;\n"));
+    }
+    
 }

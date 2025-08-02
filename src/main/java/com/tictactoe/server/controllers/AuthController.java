@@ -3,20 +3,18 @@ package com.tictactoe.server.controllers;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.tictactoe.server.dto.LoginRequestDto;
 import com.tictactoe.server.dto.RegisterRequestDto;
+import com.tictactoe.server.exceptions.InvalidRequestBodyException;
 import com.tictactoe.server.mappers.PlayerMapper;
 import com.tictactoe.server.models.Player;
 import com.tictactoe.server.security.JwtCore;
@@ -39,14 +37,9 @@ public class AuthController {
 
     @PostMapping("/signin")
     public ResponseEntity<String> signIn(@RequestBody LoginRequestDto loginRequestDto){
-        Authentication auth = null;
-        try {
-            auth =  authManager.authenticate(
+        Authentication auth =  authManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequestDto.getNickname(),loginRequestDto.getPassword())
-            );
-        } catch (BadCredentialsException exception) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"Nickname or password is incorrect!");
-        }
+        );
         SecurityContextHolder.getContext().setAuthentication(auth);
         return ResponseEntity.ok(jwtCore.generateToken(auth));
     }
@@ -54,14 +47,7 @@ public class AuthController {
     @PostMapping("/signup")
     public ResponseEntity<String> signUp(@RequestBody @Valid RegisterRequestDto registerRequestDto,
                                            BindingResult bindingResult){
-        if (bindingResult.hasErrors()) {
-            StringBuilder errorMsg = new StringBuilder();
-            for (FieldError error : bindingResult.getFieldErrors()) {
-                errorMsg.append(error.getDefaultMessage());
-                errorMsg.append(";\n");
-            }
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,errorMsg.toString());
-        }
+        if (bindingResult.hasErrors()) throw new InvalidRequestBodyException(bindingResult);
         Player player = playerMapper.registerDtoToPlayer(registerRequestDto);
         playerService.registerNewPlayer(player);
         return new ResponseEntity<>(HttpStatus.CREATED);
