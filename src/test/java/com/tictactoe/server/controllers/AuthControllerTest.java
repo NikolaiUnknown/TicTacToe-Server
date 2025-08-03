@@ -54,8 +54,6 @@ public class AuthControllerTest {
     @MockitoBean
     private RefreshTokenService refreshTokenService;
 
-    @InjectMocks
-    private AuthController authController;
 
     @Autowired
     private MockMvc mockMvc;
