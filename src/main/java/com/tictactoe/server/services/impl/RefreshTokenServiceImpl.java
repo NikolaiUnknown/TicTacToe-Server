@@ -36,11 +36,21 @@ public class RefreshTokenServiceImpl implements RefreshTokenService{
     private final RefreshTokenRepository refreshTokenRepository;
     private final PlayerRepository playerRepository;
     private final JwtCore jwtCore;
+    
     @Override
     public String generateRefreshToken(Authentication authentication) {
         var userDetails = (UserDetailsImpl)authentication.getPrincipal();
-        RefreshToken token = new RefreshToken(userDetails.getPlayer().getId(),UUID.randomUUID().toString(),new Date(new Date().getTime() + lifetime));
-        refreshTokenRepository.save(token);
+        Long playerId = userDetails.getPlayer().getId();
+        RefreshToken token = null;
+        if (refreshTokenRepository.findByPlayerId(playerId).isPresent()) {
+            token = refreshTokenRepository.findByPlayerId(playerId).get();
+            token.setExpiryDate(new Date(new Date().getTime() + lifetime));
+            refreshTokenRepository.save(token);
+        }
+        else {
+            token = new RefreshToken(playerId,UUID.randomUUID().toString(),new Date(new Date().getTime() + lifetime));
+            refreshTokenRepository.save(token);
+        }
         return token.getToken();
     }
 

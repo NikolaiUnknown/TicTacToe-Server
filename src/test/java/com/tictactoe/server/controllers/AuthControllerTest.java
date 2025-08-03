@@ -1,12 +1,12 @@
 package com.tictactoe.server.controllers;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -17,14 +17,18 @@ import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tictactoe.server.config.SecurityConfig;
 import com.tictactoe.server.dto.LoginRequestDto;
+import com.tictactoe.server.dto.RefreshTokenRequestDto;
 import com.tictactoe.server.dto.RegisterRequestDto;
 import com.tictactoe.server.exceptions.NicknameIsUsedException;
+import com.tictactoe.server.exceptions.RefreshTokenExpiredException;
+import com.tictactoe.server.exceptions.RefreshTokenNotFoundException;
 import com.tictactoe.server.mappers.PlayerMapper;
 import com.tictactoe.server.models.Player;
 import com.tictactoe.server.security.JwtCore;
@@ -126,10 +130,56 @@ public class AuthControllerTest {
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.errorMsg").value("Password length must be more than 6;\n"));
     }
-    //TODO
+
     @Test
-    void testRefresh() {
-        
+    void testSuccessfulRefreshToken() throws Exception {
+        RefreshTokenRequestDto requestDto = new RefreshTokenRequestDto("reshresh token");
+        when(refreshTokenService.updateToken(requestDto.token())).thenReturn("new access token");
+        mockMvc.perform(post("/api/v1/auth/refresh")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(requestDto)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.accessToken").value("new access token"))
+                    .andExpect(jsonPath("$.refreshToken").value(requestDto.token()));
+    }
+
+    @Test
+    void testRefreshWithExpiredToken() throws Exception {
+        RefreshTokenRequestDto requestDto = new RefreshTokenRequestDto("expired token");
+        String errorMessage = "Refresh token has expired, please re-login";
+        when(refreshTokenService.updateToken(requestDto.token()))
+                    .thenThrow(new RefreshTokenExpiredException(errorMessage));
+        mockMvc.perform(post("/api/v1/auth/refresh")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(requestDto)))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.errorMsg").value(errorMessage));
+    }
+
+    @Test
+    void testRefreshWithNonExistToken() throws Exception {
+        RefreshTokenRequestDto requestDto = new RefreshTokenRequestDto("non exist token");
+        String errorMessage = "Refresh token not found!";
+        when(refreshTokenService.updateToken(requestDto.token()))
+                    .thenThrow(new RefreshTokenNotFoundException(errorMessage));
+        mockMvc.perform(post("/api/v1/auth/refresh")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(requestDto)))
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.errorMsg").value(errorMessage));
+    }
+
+    @Test
+    void testRefreshWithNonExistPlayer() throws Exception {
+        RefreshTokenRequestDto requestDto = new RefreshTokenRequestDto("refresh token");
+        String errorMessage = "Player not found!";
+        when(refreshTokenService.updateToken(requestDto.token()))
+                    .thenThrow(new UsernameNotFoundException(errorMessage));
+        mockMvc.perform(post("/api/v1/auth/refresh")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(requestDto)))
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.errorMsg").value(errorMessage));
     }
     
 }
