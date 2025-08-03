@@ -6,7 +6,11 @@ spring:
         username: root 
         password: root
 security:
-    secret:
-        yb7ZwGe3DWNp8yFvThZ+vYc9GVVSwz6+jFhmsHC/5p4=
-    lifetime:
-        300000
+    jwt:
+        secret:
+            yb7ZwGe3DWNp8yFvThZ+vYc9GVVSwz6+jFhmsHC/5p4=
+        lifetime:
+            900000
+    refresh:
+        lifetime:
+            2147483647

@@ -10,15 +10,19 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.tictactoe.server.dto.JwtResponseDto;
 import com.tictactoe.server.dto.LoginRequestDto;
+import com.tictactoe.server.dto.RefreshTokenRequestDto;
 import com.tictactoe.server.dto.RegisterRequestDto;
 import com.tictactoe.server.exceptions.InvalidRequestBodyException;
 import com.tictactoe.server.mappers.PlayerMapper;
 import com.tictactoe.server.models.Player;
 import com.tictactoe.server.security.JwtCore;
 import com.tictactoe.server.services.PlayerService;
+import com.tictactoe.server.services.RefreshTokenService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -34,14 +38,16 @@ public class AuthController {
     private final JwtCore jwtCore;
     private final PlayerService playerService;
     private final PlayerMapper playerMapper;
+    private final RefreshTokenService refreshTokenService;
 
     @PostMapping("/signin")
-    public ResponseEntity<String> signIn(@RequestBody LoginRequestDto loginRequestDto){
+    public ResponseEntity<JwtResponseDto> signIn(@RequestBody LoginRequestDto loginRequestDto){
         Authentication auth =  authManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequestDto.getNickname(),loginRequestDto.getPassword())
         );
         SecurityContextHolder.getContext().setAuthentication(auth);
-        return ResponseEntity.ok(jwtCore.generateToken(auth));
+        var jwtResponseDto = new JwtResponseDto(jwtCore.generateToken(auth),refreshTokenService.generateRefreshToken(auth));
+        return ResponseEntity.ok(jwtResponseDto);
     }
 
     @PostMapping("/signup")
@@ -51,5 +57,11 @@ public class AuthController {
         Player player = playerMapper.registerDtoToPlayer(registerRequestDto);
         playerService.registerNewPlayer(player);
         return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<JwtResponseDto> refresh(@RequestBody RefreshTokenRequestDto refreshToken){
+        String jwt = refreshTokenService.updateToken(refreshToken.token());
+        return ResponseEntity.ok(new JwtResponseDto(jwt,refreshToken.token()));
     }
 }

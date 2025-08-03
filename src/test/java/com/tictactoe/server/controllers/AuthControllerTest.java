@@ -6,6 +6,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.UUID;
+
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,7 @@ import com.tictactoe.server.mappers.PlayerMapper;
 import com.tictactoe.server.models.Player;
 import com.tictactoe.server.security.JwtCore;
 import com.tictactoe.server.services.PlayerService;
+import com.tictactoe.server.services.RefreshTokenService;
 
 @WebMvcTest(AuthController.class)
 @Import(SecurityConfig.class)
@@ -44,6 +47,9 @@ public class AuthControllerTest {
     @MockitoBean
     private PlayerMapper playerMapper;
 
+    @MockitoBean
+    private RefreshTokenService refreshTokenService;
+
     @InjectMocks
     private AuthController authController;
 
@@ -56,11 +62,13 @@ public class AuthControllerTest {
     void testSuccessfulSignIn() throws Exception {
         LoginRequestDto loginRequestDto = new LoginRequestDto("nickname","pass");
         when(jwtCore.generateToken(any())).thenReturn("access token");
+        when(refreshTokenService.generateRefreshToken(any())).thenReturn("refresh token");
         mockMvc.perform(post("/api/v1/auth/signin")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(loginRequestDto)))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$").value("access token"));
+                    .andExpect(jsonPath("$.accessToken").value("access token"))
+                    .andExpect(jsonPath("$.refreshToken").value("refresh token"));
     }
 
     @Test
@@ -117,6 +125,11 @@ public class AuthControllerTest {
                     .content(objectMapper.writeValueAsString(registerRequestDto)))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.errorMsg").value("Password length must be more than 6;\n"));
+    }
+    //TODO
+    @Test
+    void testRefresh() {
+        
     }
     
 }

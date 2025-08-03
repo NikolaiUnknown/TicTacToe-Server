@@ -14,7 +14,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.Setter;
 
 @Component
-@ConfigurationProperties(prefix = "security")
+@ConfigurationProperties(prefix = "security.jwt")
 public class JwtCore {
     
     @Setter
