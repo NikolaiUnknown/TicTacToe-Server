@@ -47,6 +47,8 @@ public class SecurityConfig {
                 (manage) -> manage.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             ).authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/api/v1/auth/**").permitAll()
+                //FIXME
+                .requestMatchers("/api/v1/games/**").permitAll()
                 .requestMatchers("/ws/connect").permitAll()
                 .anyRequest().fullyAuthenticated()
             )
