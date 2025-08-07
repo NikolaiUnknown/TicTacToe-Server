@@ -1,5 +1,7 @@
 package com.tictactoe.server.core;
 
+import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -18,8 +20,8 @@ public class GameSession {
     private int moveCounter = 0;
 
     public GameSession(Long playerX, Long playerO) {
-        initBoard();
-        players = new ConcurrentHashMap<>();
+        initgameBoard();
+        players = new HashMap<>();
         players.put(playerX,GameFieldValue.X);
         players.put(playerO,GameFieldValue.O);             
     }
@@ -40,7 +42,14 @@ public class GameSession {
         }
         gameBoard.put(coord,players.get(playerId));
         moveCounter++;
-        return checkGameSessionStatus(gameBoard);
+        if (checkWin(GameFieldValue.X)) {
+            return GameSessionStatus.X_WIN;
+        } else if (checkWin(GameFieldValue.O)) {
+            return GameSessionStatus.O_WIN;
+        } else if (checkTie()){
+            return GameSessionStatus.TIE;
+        }
+        return GameSessionStatus.CONTINUE;
     }
     //FIXME
     public String printGameBorder(){
@@ -181,7 +190,7 @@ public class GameSession {
                 }
             } 
  
-        String boarderToString = """
+        String gameBoarderToString = """
                        |     |     
                     %s  |  %s  |  %s  
                   -----------------
@@ -193,78 +202,43 @@ public class GameSession {
                  """.formatted(gameValues[0],gameValues[1],gameValues[2],gameValues[3],gameValues[4],gameValues[5],gameValues[6],gameValues[7],gameValues[8]);
 
                 System.out.println(players);
-        return (boarderToString);
+        return (gameBoarderToString);
     }
 
-    private void initBoard(){
-        gameBoard = new ConcurrentHashMap<>();
-        gameBoard.put(GameCoord.COORD_0_0,GameFieldValue.NONE);
-        gameBoard.put(GameCoord.COORD_0_1,GameFieldValue.NONE);  
-        gameBoard.put(GameCoord.COORD_0_2,GameFieldValue.NONE);
-        gameBoard.put(GameCoord.COORD_1_0,GameFieldValue.NONE);
-        gameBoard.put(GameCoord.COORD_1_1,GameFieldValue.NONE);
-        gameBoard.put(GameCoord.COORD_1_2,GameFieldValue.NONE);
-        gameBoard.put(GameCoord.COORD_2_0,GameFieldValue.NONE);
-        gameBoard.put(GameCoord.COORD_2_1,GameFieldValue.NONE);
-        gameBoard.put(GameCoord.COORD_2_2,GameFieldValue.NONE);
-    }
-
-    private GameSessionStatus checkGameSessionStatus(Map<GameCoord,GameFieldValue> board){
-        if ((board.get(GameCoord.COORD_0_0).equals(GameFieldValue.X) &&
-            board.get(GameCoord.COORD_0_1).equals(GameFieldValue.X) &&
-            board.get(GameCoord.COORD_0_2).equals(GameFieldValue.X)) ||
-            (board.get(GameCoord.COORD_1_0).equals(GameFieldValue.X) &&
-            board.get(GameCoord.COORD_1_1).equals(GameFieldValue.X) &&
-            board.get(GameCoord.COORD_1_2).equals(GameFieldValue.X)) ||
-            (board.get(GameCoord.COORD_2_0).equals(GameFieldValue.X) &&
-            board.get(GameCoord.COORD_2_1).equals(GameFieldValue.X) &&
-            board.get(GameCoord.COORD_2_2).equals(GameFieldValue.X)) ||
-            (board.get(GameCoord.COORD_0_0).equals(GameFieldValue.X) &&
-            board.get(GameCoord.COORD_1_0).equals(GameFieldValue.X) &&
-            board.get(GameCoord.COORD_2_0).equals(GameFieldValue.X)) ||
-            (board.get(GameCoord.COORD_0_1).equals(GameFieldValue.X) &&
-            board.get(GameCoord.COORD_1_1).equals(GameFieldValue.X) &&
-            board.get(GameCoord.COORD_2_1).equals(GameFieldValue.X)) ||
-            (board.get(GameCoord.COORD_0_2).equals(GameFieldValue.X) &&
-            board.get(GameCoord.COORD_1_2).equals(GameFieldValue.X) &&
-            board.get(GameCoord.COORD_2_2).equals(GameFieldValue.X)) ||
-            (board.get(GameCoord.COORD_0_0).equals(GameFieldValue.X) &&
-            board.get(GameCoord.COORD_1_1).equals(GameFieldValue.X) &&
-            board.get(GameCoord.COORD_2_2).equals(GameFieldValue.X)) ||
-            (board.get(GameCoord.COORD_0_2).equals(GameFieldValue.X) &&
-            board.get(GameCoord.COORD_1_1).equals(GameFieldValue.X) &&
-            board.get(GameCoord.COORD_2_0).equals(GameFieldValue.X))
-            ) {
-            return GameSessionStatus.X_WIN;
-        } else if ((board.get(GameCoord.COORD_0_0).equals(GameFieldValue.O) &&
-            board.get(GameCoord.COORD_0_1).equals(GameFieldValue.O) &&
-            board.get(GameCoord.COORD_0_2).equals(GameFieldValue.O)) ||
-            (board.get(GameCoord.COORD_1_0).equals(GameFieldValue.O) &&
-            board.get(GameCoord.COORD_1_1).equals(GameFieldValue.O) &&
-            board.get(GameCoord.COORD_1_2).equals(GameFieldValue.O)) ||
-            (board.get(GameCoord.COORD_2_0).equals(GameFieldValue.O) &&
-            board.get(GameCoord.COORD_2_1).equals(GameFieldValue.O) &&
-            board.get(GameCoord.COORD_2_2).equals(GameFieldValue.O)) ||
-            (board.get(GameCoord.COORD_0_0).equals(GameFieldValue.O) &&
-            board.get(GameCoord.COORD_1_0).equals(GameFieldValue.O) &&
-            board.get(GameCoord.COORD_2_0).equals(GameFieldValue.O)) ||
-            (board.get(GameCoord.COORD_0_1).equals(GameFieldValue.O) &&
-            board.get(GameCoord.COORD_1_1).equals(GameFieldValue.O) &&
-            board.get(GameCoord.COORD_2_1).equals(GameFieldValue.O)) ||
-            (board.get(GameCoord.COORD_0_2).equals(GameFieldValue.O) &&
-            board.get(GameCoord.COORD_1_2).equals(GameFieldValue.O) &&
-            board.get(GameCoord.COORD_2_2).equals(GameFieldValue.O)) ||
-            (board.get(GameCoord.COORD_0_0).equals(GameFieldValue.O) &&
-            board.get(GameCoord.COORD_1_1).equals(GameFieldValue.O) &&
-            board.get(GameCoord.COORD_2_2).equals(GameFieldValue.O)) ||
-            (board.get(GameCoord.COORD_0_2).equals(GameFieldValue.O) &&
-            board.get(GameCoord.COORD_1_1).equals(GameFieldValue.O) &&
-            board.get(GameCoord.COORD_2_0).equals(GameFieldValue.O))
-            ) {
-            return GameSessionStatus.O_WIN;
-        } else if (moveCounter == 9) {
-            return GameSessionStatus.TIE;
+    private void initgameBoard(){
+        gameBoard = new EnumMap<>(GameCoord.class);
+        for (GameCoord coord: GameCoord.values()){
+            gameBoard.put(coord,GameFieldValue.NONE);
         }
-        return GameSessionStatus.CONTINUE;
+    }
+
+    private boolean checkWin(GameFieldValue value){
+        return (gameBoard.get(GameCoord.COORD_0_0).equals(value) &&
+                gameBoard.get(GameCoord.COORD_0_1).equals(value) &&
+                gameBoard.get(GameCoord.COORD_0_2).equals(value)) ||
+                (gameBoard.get(GameCoord.COORD_1_0).equals(value) &&
+                gameBoard.get(GameCoord.COORD_1_1).equals(value) &&
+                gameBoard.get(GameCoord.COORD_1_2).equals(value)) ||
+                (gameBoard.get(GameCoord.COORD_2_0).equals(value) &&
+                gameBoard.get(GameCoord.COORD_2_1).equals(value) &&
+                gameBoard.get(GameCoord.COORD_2_2).equals(value)) ||
+                (gameBoard.get(GameCoord.COORD_0_0).equals(value) &&
+                gameBoard.get(GameCoord.COORD_1_0).equals(value) &&
+                gameBoard.get(GameCoord.COORD_2_0).equals(value)) ||
+                (gameBoard.get(GameCoord.COORD_0_1).equals(value) &&
+                gameBoard.get(GameCoord.COORD_1_1).equals(value) &&
+                gameBoard.get(GameCoord.COORD_2_1).equals(value)) ||
+                (gameBoard.get(GameCoord.COORD_0_2).equals(value) &&
+                gameBoard.get(GameCoord.COORD_1_2).equals(value) &&
+                gameBoard.get(GameCoord.COORD_2_2).equals(value)) ||
+                (gameBoard.get(GameCoord.COORD_0_0).equals(value) &&
+                gameBoard.get(GameCoord.COORD_1_1).equals(value) &&
+                gameBoard.get(GameCoord.COORD_2_2).equals(value)) ||
+                (gameBoard.get(GameCoord.COORD_0_2).equals(value) &&
+                gameBoard.get(GameCoord.COORD_1_1).equals(value) &&
+                gameBoard.get(GameCoord.COORD_2_0).equals(value));
+    }
+    private boolean checkTie(){
+        return moveCounter == 9;
     }
 }
