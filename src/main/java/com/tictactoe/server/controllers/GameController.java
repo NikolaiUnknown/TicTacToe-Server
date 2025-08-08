@@ -31,23 +31,19 @@ public class GameController {
     private final GameCore gameCore;
     private final EntityManager entityManager;
 
-    //TODO
-    @GetMapping("/")
-    public String logGames(){
-        return gameCore.getGames().toString();
-    }
+    // //TODO
+    // @GetMapping("/")
+    // public String logGames(){
+    //     // return gameCore.getGames().toString();
+    // }
 
     @RequestMapping(value = "/move", method = RequestMethod.PATCH)
     public ResponseEntity<Void> move(@RequestBody MoveRequestDto requestDto,
                      @RequestParam("playerId") Long playerId){
-        gameCore.move(playerId, requestDto.gameId(), requestDto.coord());
+        // gameCore.move(playerId, requestDto.gameId(), requestDto.coord());
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    @GetMapping("/print/{id}")
-    public String  pringGameBoard(@PathVariable("id") Long id){
-        return gameCore.getGames().get(id).printGameBorder();
-    }
 
     @PostMapping("/")
     @Transactional
