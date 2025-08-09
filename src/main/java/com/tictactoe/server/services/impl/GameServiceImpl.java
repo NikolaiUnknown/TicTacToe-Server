@@ -17,7 +17,6 @@ import com.tictactoe.server.models.Game;
 import com.tictactoe.server.repositories.GameRepository;
 import com.tictactoe.server.services.GameService;
 
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
@@ -53,16 +52,16 @@ public class GameServiceImpl implements GameService{
             game.setDateOfEnd(new Date());
             game.setStatus(GameStatus.COMPLETED);
             switch(status){
-                case GameSessionStatus.X_WIN -> {
-                    game.setWinner(game.getFirstPlayer());
-                }
-                case GameSessionStatus.O_WIN -> {
-                    game.setWinner(game.getSecondPlayer());
-                }
+                case O_WIN -> game.setWinner(game.getSecondPlayer());
+                case X_WIN -> game.setWinner(game.getFirstPlayer());
             }
             gameRepository.save(game);
-            gameCore.deleteSessionById(gameId);
+            deleteGameSession(gameId);
         }
+    }
+
+    private void deleteGameSession(Long gameId){
+        gameCore.deleteSessionById(gameId);
     }
     
 }

@@ -4,7 +4,6 @@ import org.springframework.stereotype.Service;
 
 import com.tictactoe.server.core.GameSession;
 import com.tictactoe.server.enums.GameCoord;
-import com.tictactoe.server.enums.GameSessionStatus;
 import com.tictactoe.server.models.Game;
 
 @Service
