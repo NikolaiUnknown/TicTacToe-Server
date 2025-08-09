@@ -1,19 +1,25 @@
 package com.tictactoe.server.services.impl;
 
-import org.springframework.stereotype.Repository;
+import java.util.Date;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.tictactoe.server.core.GameCore;
 import com.tictactoe.server.core.GameSession;
 import com.tictactoe.server.enums.GameCoord;
 import com.tictactoe.server.enums.GameSessionStatus;
+import com.tictactoe.server.enums.GameStatus;
+import com.tictactoe.server.exceptions.GameNotFoundException;
 import com.tictactoe.server.exceptions.GameSessionNotFoundException;
 import com.tictactoe.server.exceptions.NotSessionParticipantException;
 import com.tictactoe.server.models.Game;
 import com.tictactoe.server.repositories.GameRepository;
 import com.tictactoe.server.services.GameService;
 
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
-@Repository
+@Service
 @RequiredArgsConstructor
 public class GameServiceImpl implements GameService{
 
@@ -30,6 +36,7 @@ public class GameServiceImpl implements GameService{
     }
 
     @Override
+    @Transactional
     public void move(Long playerId, Long gameId, GameCoord coord) {
         GameSession session = gameCore.findSessionById(gameId)
                 .orElseThrow(() -> new GameSessionNotFoundException("Game session not found!"));
@@ -37,33 +44,25 @@ public class GameServiceImpl implements GameService{
             throw new NotSessionParticipantException("Player %s isn't in session".formatted(playerId));
         }
         GameSessionStatus status = session.move(playerId, coord);
-        switch(status){
-            case GameSessionStatus.TIE -> {
-                //TODO
-                //Game registration logic
-                System.out.println("TIE");
-
-            }
-            case GameSessionStatus.X_WIN -> {
-                //TODO
-                //Game registration logic
-                System.out.println("X WINS");
-            }
-            case GameSessionStatus.O_WIN -> {
-                //TODO
-                //Game registration logic
-                System.out.println("O WINS");
-            }
-            default -> {
-                return;
-            }
+        if (status.equals(GameSessionStatus.CONTINUE)) {
+            return;
         }
-        gameCore.deleteSessionById(gameId);
-    }
-
-    private void registerResult(GameSessionStatus status, Long gameId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'registerResult'");
+        else {
+            Game game = gameRepository.findById(gameId)
+                    .orElseThrow(() -> new GameNotFoundException("Game not found!"));
+            game.setDateOfEnd(new Date());
+            game.setStatus(GameStatus.COMPLETED);
+            switch(status){
+                case GameSessionStatus.X_WIN -> {
+                    game.setWinner(game.getFirstPlayer());
+                }
+                case GameSessionStatus.O_WIN -> {
+                    game.setWinner(game.getSecondPlayer());
+                }
+            }
+            gameRepository.save(game);
+            gameCore.deleteSessionById(gameId);
+        }
     }
     
 }

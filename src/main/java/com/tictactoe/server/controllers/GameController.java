@@ -19,6 +19,7 @@ import com.tictactoe.server.dto.MoveRequestDto;
 import com.tictactoe.server.enums.GameStatus;
 import com.tictactoe.server.models.Game;
 import com.tictactoe.server.models.Player;
+import com.tictactoe.server.services.GameService;
 
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +29,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class GameController {
 
-    private final GameCore gameCore;
+    private final GameService gameService;
     private final EntityManager entityManager;
 
     // //TODO
@@ -40,7 +41,7 @@ public class GameController {
     @RequestMapping(value = "/move", method = RequestMethod.PATCH)
     public ResponseEntity<Void> move(@RequestBody MoveRequestDto requestDto,
                      @RequestParam("playerId") Long playerId){
-        // gameCore.move(playerId, requestDto.gameId(), requestDto.coord());
+        gameService.move(playerId,requestDto.gameId(),requestDto.coord());
         return new ResponseEntity(HttpStatus.OK);
     }
 
@@ -58,7 +59,7 @@ public class GameController {
                         .build();
         entityManager.persist(game);
         System.out.println(game.getId());
-        gameCore.createNewGameSession(game);;
+        gameService.createGameSession(game);;
     }
 
 
