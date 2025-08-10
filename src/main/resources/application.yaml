@@ -12,6 +12,9 @@ spring:
             hibernate:
                 format_sql:
                     true
+game:
+    rating_increase:
+        25
 security:
     jwt:
         secret:

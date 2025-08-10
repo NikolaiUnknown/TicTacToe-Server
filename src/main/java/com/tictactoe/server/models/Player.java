@@ -30,4 +30,10 @@ public class Player {
     private Date dateOfRegistration;
 
     private Integer rating;
+
+    public Player(Long id) {
+        this.id = id;
+    }
+
+    
 }
