@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,6 +15,7 @@ import com.tictactoe.server.enums.GameSessionStatus;
 import com.tictactoe.server.enums.GameStatus;
 import com.tictactoe.server.exceptions.GameNotFoundException;
 import com.tictactoe.server.exceptions.GameSessionNotFoundException;
+import com.tictactoe.server.exceptions.InvalidGameStatusException;
 import com.tictactoe.server.exceptions.NotSessionParticipantException;
 import com.tictactoe.server.models.Game;
 import com.tictactoe.server.models.Player;
@@ -38,8 +40,7 @@ public class GameServiceImpl implements GameService{
         gameRepository.save(game);
     }
 
-    @Override
-    public GameSession createGameSession(Game game) {
+    private GameSession createGameSession(Game game) {
         return gameCore.createNewGameSession(game);
     }
 
@@ -91,6 +92,21 @@ public class GameServiceImpl implements GameService{
 
     private void deleteGameSession(Long gameId){
         gameCore.deleteSessionById(gameId);
+    }
+
+    @Override
+    public GameSession acceptProposition(Long gameId, Long playerId) {
+        Game game = gameRepository.findById(gameId)
+                .orElseThrow(() -> new GameNotFoundException("Game not found!"));
+        if (game.getSecondPlayer().getId() != playerId) {
+            throw new AccessDeniedException("Game %s is forbidden for you".formatted(gameId));
+        }
+        if (game.getStatus().equals(GameStatus.PROPOSED)) {
+            game.setStatus(GameStatus.IN_PROCESS);
+            return createGameSession(game);
+        } else{
+            throw new InvalidGameStatusException(game.getStatus());
+        } 
     }
     
 }

@@ -11,8 +11,9 @@ public interface GameService {
     
     public void createGame(Game game);
 
-    public GameSession createGameSession(Game game);
 
     public void move(Long playerId, Long gameId, GameCoord coord);
+
+    public GameSession acceptProposition(Long gameId, Long playerId);
 
 }
