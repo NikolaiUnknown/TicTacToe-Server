@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +37,17 @@ public class GameServiceImpl implements GameService{
     private int ratingIncrease;
     
     @Override
-    public void createGame(Game game) {
+    public void createGame(Long firstPlayerId, Long secondPlayerId) {
+        Player player1 = playerRepository.findById(firstPlayerId)
+                    .orElseThrow(() -> new UsernameNotFoundException("Player not found!"));
+        Player player2 = playerRepository.findById(secondPlayerId)
+                    .orElseThrow(() -> new UsernameNotFoundException("Player not found!"));
+        Game game = Game.builder()
+                        .firstPlayer(player1)
+                        .secondPlayer(player2)
+                        .dateOfStart(new Date())
+                        .status(GameStatus.PROPOSED)
+                        .build();
         gameRepository.save(game);
     }
 
