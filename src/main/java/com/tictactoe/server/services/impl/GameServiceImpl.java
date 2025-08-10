@@ -103,6 +103,7 @@ public class GameServiceImpl implements GameService{
         }
         if (game.getStatus().equals(GameStatus.PROPOSED)) {
             game.setStatus(GameStatus.IN_PROCESS);
+            gameRepository.save(game);
             return createGameSession(game);
         } else{
             throw new InvalidGameStatusException(game.getStatus());
