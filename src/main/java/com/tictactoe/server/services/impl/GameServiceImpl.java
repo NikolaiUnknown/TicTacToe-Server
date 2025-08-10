@@ -37,6 +37,7 @@ public class GameServiceImpl implements GameService{
     private int ratingIncrease;
     
     @Override
+    @Transactional
     public void createGame(Long firstPlayerId, Long secondPlayerId) {
         Player player1 = playerRepository.findById(firstPlayerId)
                     .orElseThrow(() -> new UsernameNotFoundException("Player not found!"));
