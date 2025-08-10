@@ -1,7 +1,9 @@
 package com.tictactoe.server.services.impl;
 
 import java.util.Date;
+import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,7 +16,9 @@ import com.tictactoe.server.exceptions.GameNotFoundException;
 import com.tictactoe.server.exceptions.GameSessionNotFoundException;
 import com.tictactoe.server.exceptions.NotSessionParticipantException;
 import com.tictactoe.server.models.Game;
+import com.tictactoe.server.models.Player;
 import com.tictactoe.server.repositories.GameRepository;
+import com.tictactoe.server.repositories.PlayerRepository;
 import com.tictactoe.server.services.GameService;
 
 import lombok.RequiredArgsConstructor;
@@ -24,6 +28,11 @@ public class GameServiceImpl implements GameService{
 
     private final GameRepository gameRepository;
     private final GameCore gameCore;
+    private final PlayerRepository playerRepository;
+
+    @Value("${game.rating_increase}")
+    private int ratingIncrease;
+    
     @Override
     public void createGame(Game game) {
         gameRepository.save(game);
@@ -52,8 +61,28 @@ public class GameServiceImpl implements GameService{
             game.setDateOfEnd(new Date());
             game.setStatus(GameStatus.COMPLETED);
             switch(status){
-                case O_WIN -> game.setWinner(game.getSecondPlayer());
-                case X_WIN -> game.setWinner(game.getFirstPlayer());
+                case O_WIN -> {
+                    Player winner = game.getSecondPlayer();
+                    Player loser = game.getFirstPlayer();
+                    game.setWinner(winner);
+                    winner.setRating(winner.getRating() + ratingIncrease);
+                    loser.setRating(loser.getRating() - ratingIncrease);
+                    if (loser.getRating() < 0 ) {
+                        loser.setRating(0);
+                    }
+                    playerRepository.saveAll(List.of(winner,loser));
+                }
+                case X_WIN -> {
+                    Player winner = game.getFirstPlayer();
+                    Player loser = game.getSecondPlayer();
+                    game.setWinner(winner);
+                    winner.setRating(winner.getRating() + ratingIncrease);
+                    loser.setRating(loser.getRating() - ratingIncrease);
+                    if (loser.getRating() < 0 ) {
+                        loser.setRating(0);
+                    }
+                    playerRepository.saveAll(List.of(winner,loser));
+                }
             }
             gameRepository.save(game);
             deleteGameSession(gameId);
