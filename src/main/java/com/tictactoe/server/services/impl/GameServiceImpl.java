@@ -38,7 +38,7 @@ public class GameServiceImpl implements GameService{
     
     @Override
     @Transactional
-    public void createGame(Long firstPlayerId, Long secondPlayerId) {
+    public Long createGame(Long firstPlayerId, Long secondPlayerId) {
         Player player1 = playerRepository.findById(firstPlayerId)
                     .orElseThrow(() -> new UsernameNotFoundException("Player not found!"));
         Player player2 = playerRepository.findById(secondPlayerId)
@@ -50,6 +50,7 @@ public class GameServiceImpl implements GameService{
                         .status(GameStatus.PROPOSED)
                         .build();
         gameRepository.save(game);
+        return game.getId();
     }
 
     private GameSession createGameSession(Game game) {
@@ -120,6 +121,16 @@ public class GameServiceImpl implements GameService{
         } else{
             throw new InvalidGameStatusException(game.getStatus());
         } 
+    }
+
+    @Override
+    public List<Game> getPropositions(Long userId) {
+        Player player = playerRepository.findById(userId)
+                .orElseThrow(()-> new UsernameNotFoundException("Player not found!"));
+        return player.getReceivedGames()
+                    .stream()
+                    .filter((Game g) -> g.getStatus().equals(GameStatus.PROPOSED))
+                    .toList();
     }
     
 }

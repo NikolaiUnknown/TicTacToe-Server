@@ -1,8 +1,11 @@
 package com.tictactoe.server.controllers;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -11,6 +14,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tictactoe.server.dto.CreateGameRequestDto;
+import com.tictactoe.server.dto.GameResponseDto;
+import com.tictactoe.server.mappers.GameMapper;
+import com.tictactoe.server.models.Game;
 import com.tictactoe.server.security.UserDetailsImpl;
 import com.tictactoe.server.services.GameService;
 
@@ -22,6 +28,23 @@ import lombok.RequiredArgsConstructor;
 public class GameController {
 
     private final GameService gameService;
+    private final GameMapper gameMapper;
+
+    @GetMapping("/propositions")
+    public ResponseEntity<List<GameResponseDto>> getPropositions(
+        @AuthenticationPrincipal UserDetailsImpl userDetails
+    ){
+        var games = gameService.getPropositions(userDetails.getPlayer().getId())
+                .stream()
+                .map((Game g) -> {
+                    GameResponseDto dto = gameMapper.gameToDto(g);
+                    dto.setFirstPlayerId(g.getFirstPlayer().getId());
+                    dto.setSecondPlayerId(g.getSecondPlayer().getId());
+                    return dto;
+                })
+                .toList();
+        return ResponseEntity.ok(games);    
+    }
 
 
 
@@ -29,15 +52,15 @@ public class GameController {
     public ResponseEntity<Void> confirmProposition(@RequestParam("game") Long gameId,
                      @AuthenticationPrincipal UserDetailsImpl userDetails){
         gameService.acceptProposition(gameId,userDetails.getPlayer().getId());
-        return new ResponseEntity<Void>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping("/")
-    public ResponseEntity<Void> createGameBoard(@RequestBody CreateGameRequestDto createGameRequestDto,
+    public ResponseEntity<String> createGameBoard(@RequestBody CreateGameRequestDto createGameRequestDto,
                                 @AuthenticationPrincipal UserDetailsImpl userDetails){
         
-        gameService.createGame(userDetails.getPlayer().getId(),createGameRequestDto.enemyId());
-        return new ResponseEntity<Void>(HttpStatus.OK);
+        Long gameId = gameService.createGame(userDetails.getPlayer().getId(),createGameRequestDto.enemyId());
+        return new ResponseEntity<>(String.valueOf(gameId),HttpStatus.CREATED);
     }
 
 }

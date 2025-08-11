@@ -42,7 +42,7 @@ public class RefreshTokenServiceTest {
 
     @Test
     void testSuccessfulGenerateRefreshToken() {
-        Player player = new Player(0L,"","",new Date(),0);
+        Player player = new Player(0L);
         var auth = new UsernamePasswordAuthenticationToken(new UserDetailsImpl(player), null);
         assertDoesNotThrow(() -> refreshTokenServiceImpl.generateRefreshToken(auth));
         verify(refreshTokenRepository,times(1)).save(any(RefreshToken.class));
