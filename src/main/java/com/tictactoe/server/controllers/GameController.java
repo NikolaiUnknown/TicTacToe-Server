@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.tictactoe.server.dto.CreateGameRequestDto;
 import com.tictactoe.server.dto.GameResponseDto;
 import com.tictactoe.server.mappers.GameMapper;
-import com.tictactoe.server.models.Game;
 import com.tictactoe.server.security.UserDetailsImpl;
 import com.tictactoe.server.services.GameService;
 
@@ -34,15 +33,9 @@ public class GameController {
     public ResponseEntity<List<GameResponseDto>> getPropositions(
         @AuthenticationPrincipal UserDetailsImpl userDetails
     ){
-        var games = gameService.getPropositions(userDetails.getPlayer().getId())
-                .stream()
-                .map((Game g) -> {
-                    GameResponseDto dto = gameMapper.gameToDto(g);
-                    dto.setFirstPlayerId(g.getFirstPlayer().getId());
-                    dto.setSecondPlayerId(g.getSecondPlayer().getId());
-                    return dto;
-                })
-                .toList();
+        var games = gameMapper.gamesToDtos(
+            gameService.getPropositions(userDetails.getPlayer().getId())
+        );
         return ResponseEntity.ok(games);    
     }
 

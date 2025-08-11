@@ -125,12 +125,7 @@ public class GameServiceImpl implements GameService{
 
     @Override
     public List<Game> getPropositions(Long userId) {
-        Player player = playerRepository.findById(userId)
-                .orElseThrow(()-> new UsernameNotFoundException("Player not found!"));
-        return player.getReceivedGames()
-                    .stream()
-                    .filter((Game g) -> g.getStatus().equals(GameStatus.PROPOSED))
-                    .toList();
+        return gameRepository.findAllGamesBySecondPlayerIdAndStatus(userId,GameStatus.PROPOSED);
     }
     
 }

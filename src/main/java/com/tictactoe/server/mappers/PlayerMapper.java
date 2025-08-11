@@ -12,5 +12,8 @@ public interface PlayerMapper {
     @Mapping(target = "dateOfRegistration", ignore = true)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "rating", ignore = true)
+    @Mapping(target = "proposedGames", ignore = true)
+    @Mapping(target = "wonGames", ignore = true)
+    @Mapping(target = "receivedGames", ignore = true)
     Player registerDtoToPlayer(RegisterRequestDto registerRequestDto);
 }
