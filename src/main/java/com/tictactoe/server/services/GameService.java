@@ -16,4 +16,6 @@ public interface GameService {
 
     public GameSession acceptProposition(Long gameId, Long playerId);
 
+    public List<Game> getAllGames(Long id);
+
 }

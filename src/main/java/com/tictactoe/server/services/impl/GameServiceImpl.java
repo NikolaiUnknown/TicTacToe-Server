@@ -127,5 +127,10 @@ public class GameServiceImpl implements GameService{
     public List<Game> getPropositions(Long userId) {
         return gameRepository.findAllGamesBySecondPlayerIdAndStatus(userId,GameStatus.PROPOSED);
     }
+
+    @Override
+    public List<Game> getAllGames(Long id) {
+        return gameRepository.findGamesByPlayerId(id);
+    }
     
 }
