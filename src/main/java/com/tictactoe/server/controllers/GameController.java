@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.tictactoe.server.dto.CreateGameRequestDto;
 import com.tictactoe.server.dto.GameResponseDto;
-import com.tictactoe.server.dto.MoveRequestDto;
 import com.tictactoe.server.mappers.GameMapper;
 import com.tictactoe.server.security.UserDetailsImpl;
 import com.tictactoe.server.services.GameService;
@@ -60,10 +59,10 @@ public class GameController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<String> createGameBoard(@RequestBody CreateGameRequestDto createGameRequestDto,
+    public ResponseEntity<Long> proposeGame(@RequestBody CreateGameRequestDto createGameRequestDto,
                                 @AuthenticationPrincipal UserDetailsImpl userDetails){
         Long gameId = gameService.createGame(userDetails.getPlayer().getId(),createGameRequestDto.enemyId());
-        return new ResponseEntity<>(String.valueOf(gameId),HttpStatus.CREATED);
+        return new ResponseEntity<>(gameId,HttpStatus.CREATED);
     }
 
 }
