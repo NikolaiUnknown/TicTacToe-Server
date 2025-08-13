@@ -1,6 +1,5 @@
 package com.tictactoe.server.controllers;
 
-import java.nio.file.AccessDeniedException;
 import java.util.Date;
 
 import org.springframework.http.HttpStatus;
@@ -10,6 +9,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.security.access.AccessDeniedException;
 
 import com.tictactoe.server.dto.ErrorResponseDto;
 import com.tictactoe.server.exceptions.EntityNotFoundException;
