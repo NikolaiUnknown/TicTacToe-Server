@@ -1,27 +1,28 @@
 package com.tictactoe.server.controllers;
 
+import java.nio.file.AccessDeniedException;
 import java.util.Date;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.tictactoe.server.dto.ErrorResponseDto;
+import com.tictactoe.server.exceptions.EntityNotFoundException;
 import com.tictactoe.server.exceptions.InvalidRequestBodyException;
 import com.tictactoe.server.exceptions.NicknameIsUsedException;
+import com.tictactoe.server.exceptions.NotSessionParticipantException;
 import com.tictactoe.server.exceptions.RefreshTokenExpiredException;
-import com.tictactoe.server.exceptions.RefreshTokenNotFoundException;
 
 @RestControllerAdvice
 public class GlobalControllerExceptionHandler {
     
-    @ExceptionHandler(exception = UsernameNotFoundException.class)
-    public ResponseEntity<ErrorResponseDto> usernameNotFoundHandler(UsernameNotFoundException e){
+    @ExceptionHandler(exception = EntityNotFoundException.class)
+    public ResponseEntity<ErrorResponseDto> usernameNotFoundHandler(EntityNotFoundException e){
         ErrorResponseDto error = new ErrorResponseDto(e.getMessage(),new Date(),404);
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
@@ -50,15 +51,22 @@ public class GlobalControllerExceptionHandler {
         return new ResponseEntity<>(error,HttpStatus.BAD_REQUEST);
     } 
 
-    @ExceptionHandler(exception = RefreshTokenNotFoundException.class)
-    public ResponseEntity<ErrorResponseDto> refreshTokenNotFoundHandler(RefreshTokenNotFoundException e){
-        ErrorResponseDto error = new ErrorResponseDto(e.getMessage(),new Date(),404);
-        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-    }
 
     @ExceptionHandler(exception = RefreshTokenExpiredException.class)
     public ResponseEntity<ErrorResponseDto> refreshTokenExpiredHandler(RefreshTokenExpiredException e){
         ErrorResponseDto error = new ErrorResponseDto(e.getMessage(),new Date(),400);
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(exception = AccessDeniedException.class)
+    public ResponseEntity<ErrorResponseDto> gameForbiddenHandler(AccessDeniedException e){
+        ErrorResponseDto error = new ErrorResponseDto(e.getMessage(),new Date(),403);
+        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(exception = NotSessionParticipantException.class)
+    public ResponseEntity<ErrorResponseDto> gameSessionForbiddenHandler(NotSessionParticipantException e){
+        ErrorResponseDto error = new ErrorResponseDto(e.getMessage(),new Date(),403);
+        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
     }
  }

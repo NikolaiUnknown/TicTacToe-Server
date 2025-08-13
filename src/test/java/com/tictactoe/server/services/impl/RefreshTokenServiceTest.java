@@ -1,9 +1,8 @@
 package com.tictactoe.server.services.impl;
 
-import java.util.Date;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -11,14 +10,17 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Date;
+import java.util.Optional;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import com.tictactoe.server.exceptions.PlayerNotFoundException;
 import com.tictactoe.server.exceptions.RefreshTokenExpiredException;
 import com.tictactoe.server.exceptions.RefreshTokenNotFoundException;
 import com.tictactoe.server.models.Player;
@@ -78,6 +80,6 @@ public class RefreshTokenServiceTest {
         RefreshToken refreshToken = new RefreshToken();
         refreshToken.setExpiryDate(new Date(new Date().getTime() + Integer.MAX_VALUE));
         when(refreshTokenRepository.findByToken(anyString())).thenReturn(Optional.of(refreshToken));
-        assertThrows(UsernameNotFoundException.class,() -> refreshTokenServiceImpl.updateToken(""));
+        assertThrows(PlayerNotFoundException.class,() -> refreshTokenServiceImpl.updateToken(""));
     }
 }

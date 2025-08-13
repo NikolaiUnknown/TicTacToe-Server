@@ -1,7 +1,7 @@
 package com.tictactoe.server.exceptions;
 
 public class RefreshTokenExpiredException extends RuntimeException{
-    public RefreshTokenExpiredException(String msg){
-        super(msg);
+    public RefreshTokenExpiredException(){
+        super("Refresh token has expired, please re-login");
     }
 }

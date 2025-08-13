@@ -14,10 +14,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.tictactoe.server.exceptions.NicknameIsUsedException;
+import com.tictactoe.server.exceptions.PlayerNotFoundException;
 import com.tictactoe.server.models.Player;
 import com.tictactoe.server.repositories.PlayerRepository;
 
@@ -42,7 +42,7 @@ public class PlayerServiceTest {
 
     @Test
     void testLoadNonExistPlayerById() {
-        assertThrows(UsernameNotFoundException.class,()-> playerServiceImpl.loadPlayerById(0L));
+        assertThrows(PlayerNotFoundException.class,()-> playerServiceImpl.loadPlayerById(0L));
     }
 
     @Test

@@ -2,11 +2,11 @@ package com.tictactoe.server.services.impl;
 
 import java.util.Date;
 
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.tictactoe.server.exceptions.NicknameIsUsedException;
+import com.tictactoe.server.exceptions.PlayerNotFoundException;
 import com.tictactoe.server.models.Player;
 import com.tictactoe.server.repositories.PlayerRepository;
 import com.tictactoe.server.services.PlayerService;
@@ -22,13 +22,13 @@ public class PlayerServiceImpl implements PlayerService {
     @Override
     public Player loadPlayerById(Long id) {
         return playerRepository.findById(id)
-            .orElseThrow(() -> new UsernameNotFoundException("Player not found!"));
+            .orElseThrow(() -> new PlayerNotFoundException());
     }
 
     @Override
     public void registerNewPlayer(Player player) {
         if (playerRepository.findPlayerByNickname(player.getNickname()).isPresent()) {
-            throw new NicknameIsUsedException("Nickname %s is already use!".formatted(player.getNickname()));
+            throw new NicknameIsUsedException(player.getNickname());
         }
         player.setDateOfRegistration(new Date());
         player.setPassword(passwordEncoder.encode(player.getPassword()));

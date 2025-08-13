@@ -1,7 +1,7 @@
 package com.tictactoe.server.exceptions;
 
 public class NotSessionParticipantException extends RuntimeException {
-    public NotSessionParticipantException(String msg){
-        super(msg);
+    public NotSessionParticipantException(Long playerId){
+        super("Player %d isn't in session".formatted(playerId));
     }
 }

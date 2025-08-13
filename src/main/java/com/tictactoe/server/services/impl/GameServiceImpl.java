@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +17,7 @@ import com.tictactoe.server.exceptions.GameNotFoundException;
 import com.tictactoe.server.exceptions.GameSessionNotFoundException;
 import com.tictactoe.server.exceptions.InvalidGameStatusException;
 import com.tictactoe.server.exceptions.NotSessionParticipantException;
+import com.tictactoe.server.exceptions.PlayerNotFoundException;
 import com.tictactoe.server.models.Game;
 import com.tictactoe.server.models.Player;
 import com.tictactoe.server.repositories.GameRepository;
@@ -40,9 +40,9 @@ public class GameServiceImpl implements GameService{
     @Transactional
     public Long createGame(Long firstPlayerId, Long secondPlayerId) {
         Player player1 = playerRepository.findById(firstPlayerId)
-                    .orElseThrow(() -> new UsernameNotFoundException("Player not found!"));
+                    .orElseThrow(() -> new PlayerNotFoundException());
         Player player2 = playerRepository.findById(secondPlayerId)
-                    .orElseThrow(() -> new UsernameNotFoundException("Player not found!"));
+                    .orElseThrow(() -> new PlayerNotFoundException());
         Game game = Game.builder()
                         .firstPlayer(player1)
                         .secondPlayer(player2)
@@ -61,9 +61,9 @@ public class GameServiceImpl implements GameService{
     @Transactional
     public void move(Long playerId, Long gameId, GameCoord coord) {
         GameSession session = gameCore.findSessionById(gameId)
-                .orElseThrow(() -> new GameSessionNotFoundException("Game session not found!"));
+                .orElseThrow(() -> new GameSessionNotFoundException());
         if (!session.getPlayers().containsKey(playerId)) {
-            throw new NotSessionParticipantException("Player %s isn't in session".formatted(playerId));
+            throw new NotSessionParticipantException(playerId);
         }
         GameSessionStatus status = session.move(playerId, coord);
         if (status.equals(GameSessionStatus.CONTINUE)) {
@@ -71,7 +71,7 @@ public class GameServiceImpl implements GameService{
         }
         else {
             Game game = gameRepository.findById(gameId)
-                    .orElseThrow(() -> new GameNotFoundException("Game not found!"));
+                    .orElseThrow(() -> new GameNotFoundException());
             game.setDateOfEnd(new Date());
             game.setStatus(GameStatus.COMPLETED);
             switch(status){
@@ -110,7 +110,7 @@ public class GameServiceImpl implements GameService{
     @Override
     public GameSession acceptProposition(Long gameId, Long playerId) {
         Game game = gameRepository.findById(gameId)
-                .orElseThrow(() -> new GameNotFoundException("Game not found!"));
+                .orElseThrow(() -> new GameNotFoundException());
         if (game.getSecondPlayer().getId() != playerId) {
             throw new AccessDeniedException("Game %s is forbidden for you".formatted(gameId));
         }

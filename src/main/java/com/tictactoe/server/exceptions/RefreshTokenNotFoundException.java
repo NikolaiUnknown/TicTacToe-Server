@@ -1,7 +1,7 @@
 package com.tictactoe.server.exceptions;
 
-public class RefreshTokenNotFoundException extends RuntimeException{
-    public RefreshTokenNotFoundException(String msg){
-        super(msg);
+public class RefreshTokenNotFoundException extends EntityNotFoundException{
+    public RefreshTokenNotFoundException(){
+        super("Refresh token not found!");
     }
 }

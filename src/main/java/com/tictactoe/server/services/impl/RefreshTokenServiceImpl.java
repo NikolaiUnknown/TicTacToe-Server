@@ -7,9 +7,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import com.tictactoe.server.exceptions.PlayerNotFoundException;
 import com.tictactoe.server.exceptions.RefreshTokenExpiredException;
 import com.tictactoe.server.exceptions.RefreshTokenNotFoundException;
 import com.tictactoe.server.models.Player;
@@ -57,13 +57,13 @@ public class RefreshTokenServiceImpl implements RefreshTokenService{
     @Override
     public String updateToken(String refreshToken) {
         RefreshToken token = refreshTokenRepository.findByToken(refreshToken)
-                    .orElseThrow(() -> new RefreshTokenNotFoundException("Refresh token not found!"));
+                    .orElseThrow(() -> new RefreshTokenNotFoundException());
         if (token.getExpiryDate().compareTo(new Date()) != 1) {
             refreshTokenRepository.delete(token);
-            throw new RefreshTokenExpiredException("Refresh token has expired, please re-login");
+            throw new RefreshTokenExpiredException();
         }
         Player player = playerRepository.findById(token.getPlayerId())
-                    .orElseThrow(() -> new UsernameNotFoundException("Player not found!"));
+                    .orElseThrow(() -> new PlayerNotFoundException());
         UserDetails userDetails = new UserDetailsImpl(player);
         var auth = new UsernamePasswordAuthenticationToken(
             userDetails,
