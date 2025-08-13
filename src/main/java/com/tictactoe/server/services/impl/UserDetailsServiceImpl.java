@@ -2,6 +2,7 @@ package com.tictactoe.server.services.impl;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.tictactoe.server.exceptions.PlayerNotFoundException;
@@ -20,7 +21,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) {
         Player player = playerRepository.findPlayerByNickname(username)
-            .orElseThrow(() -> new PlayerNotFoundException());
+            .orElseThrow(() -> new UsernameNotFoundException("Player not found"));
         return new UserDetailsImpl(player);
     }
 
