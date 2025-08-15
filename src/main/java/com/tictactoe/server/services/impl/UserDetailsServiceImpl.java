@@ -5,7 +5,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.tictactoe.server.exceptions.PlayerNotFoundException;
 import com.tictactoe.server.models.Player;
 import com.tictactoe.server.repositories.PlayerRepository;
 import com.tictactoe.server.security.UserDetailsImpl;

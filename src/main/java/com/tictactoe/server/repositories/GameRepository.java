@@ -22,7 +22,9 @@ public interface GameRepository extends CrudRepository<Game,Long> {
     //         OR g.secondPlayer.id=:id
     //         """)
     @Query(value = """
-            SELECT * FROM games where first_player_id=?1 or second_player_id =?1
-            """, nativeQuery = true)
+                   SELECT * FROM games 
+                   WHERE first_player_id=?1 
+                   OR second_player_id =?1
+                   """, nativeQuery = true)
     List<Game> findGamesByPlayerId(Long id);
 }

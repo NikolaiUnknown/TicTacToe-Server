@@ -8,11 +8,9 @@ import org.springframework.stereotype.Component;
 
 import com.tictactoe.server.models.Game;
 
-import lombok.Getter;
-
 @Component
 public class GameCore {
-    @Getter
+    
     private final Map<Long,GameSession> games;
 
     public GameCore() {
