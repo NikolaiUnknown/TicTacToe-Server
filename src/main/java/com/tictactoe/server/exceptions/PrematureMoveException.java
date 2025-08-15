@@ -1,7 +1,9 @@
 package com.tictactoe.server.exceptions;
 
+import com.tictactoe.server.enums.GameFieldValue;
+
 public class PrematureMoveException extends RuntimeException {
-    public PrematureMoveException(String msg){
-        super(msg);
+    public PrematureMoveException(GameFieldValue fieldValue){
+        super("%s is moving now".formatted(fieldValue));
     }
 }

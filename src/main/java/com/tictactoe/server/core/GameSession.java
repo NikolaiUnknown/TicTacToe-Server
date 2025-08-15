@@ -6,7 +6,7 @@ import java.util.Map;
 import com.tictactoe.server.enums.GameCoord;
 import com.tictactoe.server.enums.GameFieldValue;
 import com.tictactoe.server.enums.GameSessionStatus;
-import com.tictactoe.server.exceptions.FieldAlreadyUsedException;
+import com.tictactoe.server.exceptions.FieldIsAlreadyUsedException;
 import com.tictactoe.server.exceptions.PrematureMoveException;
 
 import lombok.Getter;
@@ -27,7 +27,7 @@ public class GameSession {
 
     public GameSessionStatus move(Long playerId, GameCoord coord){
         if (!gameBoard.get(coord).equals(GameFieldValue.NONE)) {
-            throw new FieldAlreadyUsedException("Field %s is already used".formatted(coord.toString()));
+            throw new FieldIsAlreadyUsedException(coord.toString());
         }
         GameFieldValue currentValue = null;
         if (moveCounter % 2 == 0) {
@@ -36,7 +36,7 @@ public class GameSession {
             currentValue = GameFieldValue.O;
         }
         if (!players.get(playerId).equals(currentValue)) {
-            throw new PrematureMoveException("%s is moving now".formatted(currentValue));
+            throw new PrematureMoveException(currentValue);
         }
         gameBoard.put(coord,players.get(playerId));
         moveCounter++;

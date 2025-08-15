@@ -12,11 +12,16 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.security.access.AccessDeniedException;
 
 import com.tictactoe.server.dto.ErrorResponseDto;
+import com.tictactoe.server.enums.GameStatus;
 import com.tictactoe.server.exceptions.EntityNotFoundException;
+import com.tictactoe.server.exceptions.FieldIsAlreadyUsedException;
+import com.tictactoe.server.exceptions.InvalidGameStatusException;
 import com.tictactoe.server.exceptions.InvalidRequestBodyException;
 import com.tictactoe.server.exceptions.NicknameIsUsedException;
 import com.tictactoe.server.exceptions.NotSessionParticipantException;
+import com.tictactoe.server.exceptions.PrematureMoveException;
 import com.tictactoe.server.exceptions.RefreshTokenExpiredException;
+import com.tictactoe.server.exceptions.SelfRequestException;
 
 @RestControllerAdvice
 public class GlobalControllerExceptionHandler {
@@ -69,4 +74,41 @@ public class GlobalControllerExceptionHandler {
         ErrorResponseDto error = new ErrorResponseDto(e.getMessage(),new Date(),403);
         return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
     }
+
+    @ExceptionHandler(exception = FieldIsAlreadyUsedException.class)
+    public ResponseEntity<ErrorResponseDto> fieldExceptionHandler(FieldIsAlreadyUsedException e){
+        ErrorResponseDto error = new ErrorResponseDto(e.getMessage(),new Date(),400);
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(exception = PrematureMoveException.class)
+    public ResponseEntity<ErrorResponseDto> prematureMoveHandler(PrematureMoveException e){
+        ErrorResponseDto error = new ErrorResponseDto(e.getMessage(),new Date(),400);
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(exception = SelfRequestException.class)
+    public ResponseEntity<ErrorResponseDto> selfRequestHandler(SelfRequestException e){
+        ErrorResponseDto error = new ErrorResponseDto(e.getMessage(),new Date(),400);
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(exception = InvalidGameStatusException.class)
+    public ResponseEntity<ErrorResponseDto> invelidGameStatusHandler(InvalidGameStatusException e){
+        String errorMsg = null;
+        switch (e.getStatus()) {
+            case GameStatus.IN_PROCESS -> {
+                errorMsg = "This game is already started";
+            }
+            case GameStatus.CANCELED -> {
+                errorMsg = "This game is canceled";
+            }
+            case GameStatus.COMPLETED -> {
+                errorMsg = "This game is completed";
+            }
+        }
+        ErrorResponseDto error = new ErrorResponseDto(errorMsg,new Date(),400);
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
  }

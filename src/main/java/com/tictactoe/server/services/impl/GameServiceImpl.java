@@ -18,6 +18,7 @@ import com.tictactoe.server.exceptions.GameSessionNotFoundException;
 import com.tictactoe.server.exceptions.InvalidGameStatusException;
 import com.tictactoe.server.exceptions.NotSessionParticipantException;
 import com.tictactoe.server.exceptions.PlayerNotFoundException;
+import com.tictactoe.server.exceptions.SelfRequestException;
 import com.tictactoe.server.models.Game;
 import com.tictactoe.server.models.Player;
 import com.tictactoe.server.repositories.GameRepository;
@@ -39,6 +40,7 @@ public class GameServiceImpl implements GameService{
     @Override
     @Transactional
     public Long createGame(Long firstPlayerId, Long secondPlayerId) {
+        if (firstPlayerId.equals(secondPlayerId)) throw new SelfRequestException();
         Player player1 = playerRepository.findById(firstPlayerId)
                     .orElseThrow(() -> new PlayerNotFoundException());
         Player player2 = playerRepository.findById(secondPlayerId)
