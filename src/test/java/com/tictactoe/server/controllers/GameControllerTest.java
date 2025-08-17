@@ -21,7 +21,6 @@ import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tictactoe.server.config.SecurityConfig;
 import com.tictactoe.server.dto.CreateGameRequestDto;
