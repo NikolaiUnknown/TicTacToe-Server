@@ -113,7 +113,7 @@ public class GameServiceImpl implements GameService{
     public GameSession acceptProposition(Long gameId, Long playerId) {
         Game game = gameRepository.findById(gameId)
                 .orElseThrow(() -> new GameNotFoundException());
-        if (game.getSecondPlayer().getId() != playerId) {
+        if (!game.getSecondPlayer().getId().equals(playerId)) {
             throw new AccessDeniedException("Game %s is forbidden for you".formatted(gameId));
         }
         if (game.getStatus().equals(GameStatus.PROPOSED)) {
