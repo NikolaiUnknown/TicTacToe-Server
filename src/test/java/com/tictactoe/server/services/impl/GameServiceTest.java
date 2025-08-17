@@ -52,7 +52,7 @@ public class GameServiceTest {
 
 
     @Test
-    void testAcceptSuccesfulProposition() {
+    void testAcceptSuccessfulProposition() {
         Game game = Game.builder()
                     .secondPlayer(new Player(0L))
                     .status(GameStatus.PROPOSED)
@@ -84,7 +84,7 @@ public class GameServiceTest {
     @Test
     void testAcceptForbiddenProposition() {
         Game game = new Game();
-        game.setSecondPlayer(new Player());
+        game.setSecondPlayer(new Player(1L));
         when(gameRepository.findById(anyLong())).thenReturn(Optional.of(game));
         assertThrows(AccessDeniedException.class,
                 ()-> gameServiceImpl.acceptProposition(0L, 0L));
@@ -98,7 +98,7 @@ public class GameServiceTest {
 
 
     @Test
-    void testSuccesfulCreateGame() {
+    void testSuccessfulCreateGame() {
         when(playerRepository.findById(0L)).thenReturn(Optional.of(new Player(0L)));
         when(playerRepository.findById(1L)).thenReturn(Optional.of(new Player(1L)));
 
@@ -120,7 +120,7 @@ public class GameServiceTest {
     }
 
     @Test
-    void testSuccesfulContinueMove() {
+    void testSuccessfulContinueMove() {
         GameSession session = new GameSession(0L,1L);
         when(gameCore.findSessionById(0L)).thenReturn(Optional.of(session));
         assertDoesNotThrow(()-> gameServiceImpl.move(0L,0L,GameCoord.COORD_0_0));

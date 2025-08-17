@@ -2,14 +2,15 @@ package com.tictactoe.server.exceptions;
 
 import com.tictactoe.server.enums.GameStatus;
 
-import lombok.Getter;
-
 public class InvalidGameStatusException extends RuntimeException{
-
-    @Getter
-    private final GameStatus status;
     
     public InvalidGameStatusException(GameStatus status){
-        this.status = status;
+        super(switch (status) {
+            case GameStatus.IN_PROCESS -> "This game is already started";
+            case GameStatus.CANCELED -> "This game is canceled";
+            case GameStatus.COMPLETED -> "This game is completed";
+            default -> throw new IllegalArgumentException("Unexpected value: " + status);
+        });
+        
     }
 }

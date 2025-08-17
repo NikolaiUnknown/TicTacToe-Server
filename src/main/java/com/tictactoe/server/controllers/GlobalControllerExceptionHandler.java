@@ -95,19 +95,7 @@ public class GlobalControllerExceptionHandler {
 
     @ExceptionHandler(exception = InvalidGameStatusException.class)
     public ResponseEntity<ErrorResponseDto> invelidGameStatusHandler(InvalidGameStatusException e){
-        String errorMsg = null;
-        switch (e.getStatus()) {
-            case GameStatus.IN_PROCESS -> {
-                errorMsg = "This game is already started";
-            }
-            case GameStatus.CANCELED -> {
-                errorMsg = "This game is canceled";
-            }
-            case GameStatus.COMPLETED -> {
-                errorMsg = "This game is completed";
-            }
-        }
-        ErrorResponseDto error = new ErrorResponseDto(errorMsg,new Date(),400);
+        ErrorResponseDto error = new ErrorResponseDto(e.getMessage(),new Date(),400);
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
