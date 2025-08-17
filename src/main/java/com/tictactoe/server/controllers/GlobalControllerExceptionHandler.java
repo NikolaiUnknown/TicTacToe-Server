@@ -4,15 +4,14 @@ import java.util.Date;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.security.access.AccessDeniedException;
 
 import com.tictactoe.server.dto.ErrorResponseDto;
-import com.tictactoe.server.enums.GameStatus;
 import com.tictactoe.server.exceptions.EntityNotFoundException;
 import com.tictactoe.server.exceptions.FieldIsAlreadyUsedException;
 import com.tictactoe.server.exceptions.InvalidGameStatusException;
