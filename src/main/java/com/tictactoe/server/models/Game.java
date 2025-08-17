@@ -4,6 +4,7 @@ import java.util.Date;
 
 import com.tictactoe.server.enums.GameStatus;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -28,6 +29,7 @@ public class Game {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     @ManyToOne
@@ -42,10 +44,13 @@ public class Game {
     @JoinColumn(name ="winner_id", referencedColumnName = "id")
     private Player winner;
     
+    @Column(name = "date_of_start")
     private Date dateOfStart;
 
+    @Column(name = "date_of_end")
     private Date dateOfEnd;
 
+    @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private GameStatus status;
     
