@@ -48,6 +48,8 @@ public class SecurityConfig {
             ).authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/api/v1/auth/**").permitAll()
                 .requestMatchers("/ws/connect/**").permitAll()
+                .requestMatchers("/api/v1/players/me").fullyAuthenticated()
+                .requestMatchers("/api/v1/players/**").permitAll()
                 .anyRequest().fullyAuthenticated()
             )
             .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
