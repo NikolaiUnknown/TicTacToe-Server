@@ -1,8 +1,7 @@
 package com.tictactoe.server.mappers;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingConstants;
+import com.tictactoe.server.dto.PlayerResponseDto;
+import org.mapstruct.*;
 
 import com.tictactoe.server.dto.RegisterRequestDto;
 import com.tictactoe.server.models.Player;
@@ -16,4 +15,9 @@ public interface PlayerMapper {
     @Mapping(target = "wonGames", ignore = true)
     @Mapping(target = "receivedGames", ignore = true)
     Player registerDtoToPlayer(RegisterRequestDto registerRequestDto);
+
+    Player toPlayer(PlayerResponseDto playerResponseDto);
+
+    PlayerResponseDto toDto(Player player);
+
 }
