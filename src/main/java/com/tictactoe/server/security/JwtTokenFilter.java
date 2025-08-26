@@ -33,31 +33,33 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         String header = request.getHeader(HEADER_NAME);
+        doAuth(header);
+        filterChain.doFilter(request, response);
+    }
+
+    public void doAuth(String header){
         String token = null;
         if (header != null && !header.isEmpty() && header.startsWith(BEARER_PREFIX)) {
             token = header.substring(BEARER_PREFIX.length());
         }
         if (token != null) {
-            
+
             try {
                 if (SecurityContextHolder.getContext().getAuthentication() == null) {
                     Long playerId = jwtCore.getIdByToken(token);
                     Player player = playerService.loadPlayerById(playerId);
                     UserDetailsImpl userDetails = new UserDetailsImpl(player);
                     var auth = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities()
+                            userDetails,
+                            null,
+                            userDetails.getAuthorities()
                     );
-                    SecurityContextHolder.getContext().setAuthentication(auth); 
+                    SecurityContextHolder.getContext().setAuthentication(auth);
                 }
             } catch (JwtException e) {
                 //ignored
             }
         }
-        filterChain.doFilter(request, response);
     }
-
-
     
 }

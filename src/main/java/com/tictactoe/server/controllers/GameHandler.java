@@ -15,8 +15,9 @@ public class GameHandler {
 
     private final GameService gameService;
 
-    @MessageMapping("/games/move")
+    @MessageMapping("/game/move")
     public void move(Principal principal, @Payload MoveRequestDto moveRequestDto){
+        System.out.println("Get message " + moveRequestDto);
         gameService.move(Long.parseLong(principal.getName()),moveRequestDto.gameId(),moveRequestDto.coord());
     }
 
