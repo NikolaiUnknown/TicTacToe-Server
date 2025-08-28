@@ -2,6 +2,7 @@ package com.tictactoe.server.models;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -47,47 +48,14 @@ public class Player {
     private List<Game> wonGames;
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        Player other = (Player) obj;
-        if (nickname == null) {
-            if (other.nickname != null)
-                return false;
-        } else if (!nickname.equals(other.nickname))
-            return false;
-        if (password == null) {
-            if (other.password != null)
-                return false;
-        } else if (!password.equals(other.password))
-            return false;
-        if (dateOfRegistration == null) {
-            if (other.dateOfRegistration != null)
-                return false;
-        } else if (!dateOfRegistration.equals(other.dateOfRegistration))
-            return false;
-        if (rating == null) {
-            if (other.rating != null)
-                return false;
-        } else if (!rating.equals(other.rating))
-            return false;
-        return true;
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Player player = (Player) o;
+        return Objects.equals(nickname, player.nickname) && Objects.equals(password, player.password) && Objects.equals(dateOfRegistration, player.dateOfRegistration) && Objects.equals(rating, player.rating);
     }
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((nickname == null) ? 0 : nickname.hashCode());
-        result = prime * result + ((password == null) ? 0 : password.hashCode());
-        result = prime * result + ((dateOfRegistration == null) ? 0 : dateOfRegistration.hashCode());
-        result = prime * result + ((rating == null) ? 0 : rating.hashCode());
-        return result;
+        return Objects.hash(nickname, password, dateOfRegistration, rating);
     }
-
-    
 }
