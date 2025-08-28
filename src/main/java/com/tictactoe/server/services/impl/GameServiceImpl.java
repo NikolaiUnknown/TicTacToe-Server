@@ -2,6 +2,7 @@ package com.tictactoe.server.services.impl;
 
 import com.tictactoe.server.core.GameCore;
 import com.tictactoe.server.core.GameSession;
+import com.tictactoe.server.dto.GameSessionStatusMessageDto;
 import com.tictactoe.server.dto.MoveMessageDto;
 import com.tictactoe.server.enums.GameCoord;
 import com.tictactoe.server.enums.GameSessionStatus;
@@ -64,10 +65,8 @@ public class GameServiceImpl implements GameService{
             throw new NotSessionParticipantException(playerId);
         }
         GameSessionStatus status = session.move(playerId, coord);
-        if (status.equals(GameSessionStatus.CONTINUE)) {
-            webSocketMessagingService.sendMoveMessage(new MoveMessageDto(playerId,coord),gameId);
-        }
-        else {
+        webSocketMessagingService.sendMoveMessage(new MoveMessageDto(playerId,coord),gameId);
+        if (!status.equals(GameSessionStatus.CONTINUE)) {
             Game game = gameRepository.findById(gameId)
                     .orElseThrow(GameNotFoundException::new);
             game.setDateOfEnd(new Date());
@@ -83,6 +82,7 @@ public class GameServiceImpl implements GameService{
                         loser.setRating(0);
                     }
                     playerRepository.saveAll(List.of(winner,loser));
+
                 }
                 case X_WIN -> {
                     Player winner = game.getFirstPlayer();
@@ -98,6 +98,7 @@ public class GameServiceImpl implements GameService{
             }
             gameRepository.save(game);
             deleteGameSession(gameId);
+            webSocketMessagingService.sendStatusMessage(new GameSessionStatusMessageDto(status),gameId);
         }
     }
 
