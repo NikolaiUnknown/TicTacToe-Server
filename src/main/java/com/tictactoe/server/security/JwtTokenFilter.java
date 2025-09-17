@@ -23,8 +23,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class JwtTokenFilter extends OncePerRequestFilter {
 
-    public static final String BEARER_PREFIX = "Bearer ";   
-    public static final String HEADER_NAME = "Authorization";
+    public final String BEARER_PREFIX = "Bearer ";
+    public final String HEADER_NAME = "Authorization";
 
     private final JwtCore jwtCore;
     private final PlayerService playerService;

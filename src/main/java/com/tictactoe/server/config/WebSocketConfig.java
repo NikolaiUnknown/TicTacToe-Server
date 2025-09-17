@@ -1,5 +1,6 @@
 package com.tictactoe.server.config;
 
+import com.tictactoe.server.security.AuthenticationChannelInterceptor;
 import com.tictactoe.server.security.JwtTokenFilter;
 import com.tictactoe.server.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
@@ -22,8 +24,7 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-    public static final String HEADER_NAME = "Authorization";
-    private final JwtTokenFilter jwtTokenFilter;
+    private final AuthenticationChannelInterceptor authChannelInterceptor;
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
@@ -33,25 +34,12 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
-        registration.interceptors(new ChannelInterceptor(){
-            @Override
-            public Message<?> preSend(Message<?> message, MessageChannel channel) {
-                StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
-                if (accessor != null && StompCommand.CONNECT.equals(accessor.getCommand())){
-                    String header = accessor.getFirstNativeHeader(HEADER_NAME);
-                    jwtTokenFilter.doAuth(header);
-                    var auth = SecurityContextHolder.getContext().getAuthentication();
-                    Long playerId = ((UserDetailsImpl)(auth.getPrincipal())).getPlayer().getId();
-                    accessor.setUser(() -> String.valueOf(playerId));
-                }
-                return message;
-            }
-        });
+        registration.interceptors(authChannelInterceptor);
     }
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.enableSimpleBroker("/game/move");
+        registry.enableSimpleBroker("/game");
     }
     
 

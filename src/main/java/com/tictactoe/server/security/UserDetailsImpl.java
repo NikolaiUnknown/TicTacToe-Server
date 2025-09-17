@@ -12,7 +12,7 @@ import lombok.Getter;
 
 public class UserDetailsImpl implements UserDetails{
     @Getter
-    private Player player;
+    private final Player player;
 
     public UserDetailsImpl(Player player){
         this.player = player;
