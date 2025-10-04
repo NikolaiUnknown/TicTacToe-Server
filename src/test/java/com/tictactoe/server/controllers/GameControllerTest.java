@@ -106,7 +106,7 @@ public class GameControllerTest {
 
     @Test
     @WithUserDetails
-    void testSuccefulConfirmGameProposition() throws Exception {
+    void testSuccessfulConfirmGameProposition() throws Exception {
         mockMvc.perform(patch("/api/v1/games/confirm")
                 .param("game","0"))
                 .andExpect(status().isOk());
@@ -151,7 +151,7 @@ public class GameControllerTest {
 
     @Test
     @WithUserDetails
-    void testSuccefulProposeGame() throws Exception {
+    void testSuccessfulProposeGame() throws Exception {
         when(gameService.createGame(0L,1L)).thenReturn(0L);
         mockMvc.perform(post("/api/v1/games/")
                 .contentType(MediaType.APPLICATION_JSON)

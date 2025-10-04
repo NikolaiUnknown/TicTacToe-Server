@@ -22,7 +22,7 @@ public class PlayerServiceImpl implements PlayerService {
     @Override
     public Player loadPlayerById(Long id) {
         return playerRepository.findById(id)
-            .orElseThrow(() -> new PlayerNotFoundException());
+            .orElseThrow(PlayerNotFoundException::new);
     }
 
     @Override

@@ -1,18 +1,14 @@
 package com.tictactoe.server.services.impl;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.Collections;
-import java.util.Date;
-import java.util.Optional;
-
+import com.tictactoe.server.core.GameCore;
+import com.tictactoe.server.core.GameSession;
+import com.tictactoe.server.enums.GameCoord;
+import com.tictactoe.server.enums.GameStatus;
+import com.tictactoe.server.exceptions.*;
+import com.tictactoe.server.models.Game;
+import com.tictactoe.server.models.Player;
+import com.tictactoe.server.repositories.GameRepository;
+import com.tictactoe.server.repositories.PlayerRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -20,22 +16,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.access.AccessDeniedException;
 
-import com.tictactoe.server.core.GameCore;
-import com.tictactoe.server.core.GameSession;
-import com.tictactoe.server.enums.GameCoord;
-import com.tictactoe.server.enums.GameStatus;
-import com.tictactoe.server.exceptions.FieldIsAlreadyUsedException;
-import com.tictactoe.server.exceptions.GameNotFoundException;
-import com.tictactoe.server.exceptions.GameSessionNotFoundException;
-import com.tictactoe.server.exceptions.InvalidGameStatusException;
-import com.tictactoe.server.exceptions.NotSessionParticipantException;
-import com.tictactoe.server.exceptions.PlayerNotFoundException;
-import com.tictactoe.server.exceptions.PrematureMoveException;
-import com.tictactoe.server.exceptions.SelfRequestException;
-import com.tictactoe.server.models.Game;
-import com.tictactoe.server.models.Player;
-import com.tictactoe.server.repositories.GameRepository;
-import com.tictactoe.server.repositories.PlayerRepository;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class GameServiceTest {
@@ -46,6 +34,11 @@ public class GameServiceTest {
     private GameCore gameCore;
     @Mock
     private PlayerRepository playerRepository;
+
+    @Mock
+    private WebSocketMessagingServiceImpl webSocketMessagingService;
+    @Mock
+    private MessageCacheServiceImpl messageCacheService;
 
     @InjectMocks
     private GameServiceImpl gameServiceImpl;

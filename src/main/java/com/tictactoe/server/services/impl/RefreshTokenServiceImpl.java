@@ -57,13 +57,13 @@ public class RefreshTokenServiceImpl implements RefreshTokenService{
     @Override
     public String updateToken(String refreshToken) {
         RefreshToken token = refreshTokenRepository.findByToken(refreshToken)
-                    .orElseThrow(() -> new RefreshTokenNotFoundException());
+                    .orElseThrow(RefreshTokenNotFoundException::new);
         if (token.getExpiryDate().compareTo(new Date()) != 1) {
             refreshTokenRepository.delete(token);
             throw new RefreshTokenExpiredException();
         }
         Player player = playerRepository.findById(token.getPlayerId())
-                    .orElseThrow(() -> new PlayerNotFoundException());
+                    .orElseThrow(PlayerNotFoundException::new);
         UserDetails userDetails = new UserDetailsImpl(player);
         var auth = new UsernamePasswordAuthenticationToken(
             userDetails,
