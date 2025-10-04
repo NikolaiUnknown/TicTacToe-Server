@@ -2,6 +2,7 @@ package com.tictactoe.server.controllers;
 
 import com.tictactoe.server.dto.CreateGameRequestDto;
 import com.tictactoe.server.dto.GameResponseDto;
+import com.tictactoe.server.enums.GameFieldValue;
 import com.tictactoe.server.mappers.GameMapper;
 import com.tictactoe.server.security.UserDetailsImpl;
 import com.tictactoe.server.services.GameService;
@@ -55,6 +56,12 @@ public class GameController {
                                 @AuthenticationPrincipal UserDetailsImpl userDetails){
         Long gameId = gameService.createGame(userDetails.getPlayer().getId(),createGameRequestDto.enemyId());
         return new ResponseEntity<>(gameId,HttpStatus.CREATED);
+    }
+
+    @GetMapping("/value")
+    public ResponseEntity<GameFieldValue> getMyValue(@RequestParam("game") Long gameId,
+                                 @AuthenticationPrincipal UserDetailsImpl userDetails){
+        return ResponseEntity.ok(gameService.getPlayerValue(gameId,userDetails.getPlayer().getId()));
     }
 
 }

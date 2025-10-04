@@ -5,6 +5,7 @@ import com.tictactoe.server.core.GameSession;
 import com.tictactoe.server.dto.GameSessionStatusMessageDto;
 import com.tictactoe.server.dto.MoveMessageDto;
 import com.tictactoe.server.enums.GameCoord;
+import com.tictactoe.server.enums.GameFieldValue;
 import com.tictactoe.server.enums.GameSessionStatus;
 import com.tictactoe.server.enums.GameStatus;
 import com.tictactoe.server.exceptions.*;
@@ -13,6 +14,7 @@ import com.tictactoe.server.models.Player;
 import com.tictactoe.server.repositories.GameRepository;
 import com.tictactoe.server.repositories.PlayerRepository;
 import com.tictactoe.server.services.GameService;
+import com.tictactoe.server.services.MessageCacheService;
 import com.tictactoe.server.services.WebSocketMessagingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,6 +32,7 @@ public class GameServiceImpl implements GameService{
     private final GameCore gameCore;
     private final PlayerRepository playerRepository;
     private final WebSocketMessagingService webSocketMessagingService;
+    private final MessageCacheService messageCacheService;
 
     @Value("${game.rating_increase}")
     private int ratingIncrease;
@@ -67,39 +70,41 @@ public class GameServiceImpl implements GameService{
         GameSessionStatus status = session.move(playerId, coord);
         webSocketMessagingService.sendMoveMessage(new MoveMessageDto(playerId,coord),gameId);
         if (!status.equals(GameSessionStatus.CONTINUE)) {
-            Game game = gameRepository.findById(gameId)
-                    .orElseThrow(GameNotFoundException::new);
-            game.setDateOfEnd(new Date());
-            game.setStatus(GameStatus.COMPLETED);
-            switch(status){
-                case O_WIN -> {
-                    Player winner = game.getSecondPlayer();
-                    Player loser = game.getFirstPlayer();
-                    game.setWinner(winner);
-                    winner.setRating(winner.getRating() + ratingIncrease);
-                    loser.setRating(loser.getRating() - ratingIncrease);
-                    if (loser.getRating() < 0 ) {
-                        loser.setRating(0);
-                    }
-                    playerRepository.saveAll(List.of(winner,loser));
-
-                }
-                case X_WIN -> {
-                    Player winner = game.getFirstPlayer();
-                    Player loser = game.getSecondPlayer();
-                    game.setWinner(winner);
-                    winner.setRating(winner.getRating() + ratingIncrease);
-                    loser.setRating(loser.getRating() - ratingIncrease);
-                    if (loser.getRating() < 0 ) {
-                        loser.setRating(0);
-                    }
-                    playerRepository.saveAll(List.of(winner,loser));
-                }
-            }
-            gameRepository.save(game);
-            deleteGameSession(gameId);
-            webSocketMessagingService.sendStatusMessage(new GameSessionStatusMessageDto(status),gameId);
+            regResult(gameId,status);
         }
+    }
+    @Override
+    public void regResult(Long gameId, GameSessionStatus status){
+        messageCacheService.removeGameFromCache(gameId);
+        Game game = gameRepository.findById(gameId)
+                .orElseThrow(GameNotFoundException::new);
+        game.setDateOfEnd(new Date());
+        game.setStatus(GameStatus.COMPLETED);
+        switch(status){
+            case O_WIN -> {
+                Player winner = game.getSecondPlayer();
+                Player loser = game.getFirstPlayer();
+                regWin(winner,loser,game);
+            }
+            case X_WIN -> {
+                Player winner = game.getFirstPlayer();
+                Player loser = game.getSecondPlayer();
+                regWin(winner,loser,game);
+            }
+        }
+        gameRepository.save(game);
+        deleteGameSession(gameId);
+        webSocketMessagingService.sendGameStatusMessage(new GameSessionStatusMessageDto(status),gameId);
+    }
+
+    private void regWin(Player winner, Player loser, Game game){
+        winner.setRating(winner.getRating() + ratingIncrease);
+        loser.setRating(loser.getRating() - ratingIncrease);
+        game.setWinner(winner);
+        if (loser.getRating() < 0) {
+            loser.setRating(0);
+        }
+        playerRepository.saveAll(List.of(winner,loser));
     }
 
     private void deleteGameSession(Long gameId){
@@ -131,5 +136,10 @@ public class GameServiceImpl implements GameService{
     public List<Game> getAllGames(Long id) {
         return gameRepository.findGamesByPlayerId(id);
     }
-    
+
+    @Override
+    public GameFieldValue getPlayerValue(Long gameId, Long playerId){
+        var gameSession = gameCore.findSessionById(gameId).orElseThrow(GameSessionNotFoundException::new);
+        return gameSession.getPlayers().getOrDefault(playerId, GameFieldValue.NONE);
+    }
 }
