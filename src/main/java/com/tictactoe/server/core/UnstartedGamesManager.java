@@ -1,7 +1,5 @@
 package com.tictactoe.server.core;
 
-import lombok.Getter;
-import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -26,7 +24,6 @@ public class UnstartedGamesManager {
     public Set<Long> getExpiredGames(Long acceptableDisconnectTime) {
         Date nowTime = new Date();
         Set<Long> unstartedGames = new LinkedHashSet<>();
-        System.out.println("UNSTARTED GAMES CACHE: " + unstartedGamesCache);
         for (Long gameId : unstartedGamesCache.keySet()) {
             if (nowTime.getTime() - unstartedGamesCache.get(gameId) > acceptableDisconnectTime) {
                 unstartedGames.add(gameId);

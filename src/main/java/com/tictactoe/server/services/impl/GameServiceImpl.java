@@ -67,7 +67,7 @@ public class GameServiceImpl implements GameService{
     @Transactional
     public void move(Long playerId, Long gameId, GameCoord coord) {
         GameSession session = gameCore.findSessionById(gameId)
-                .orElseThrow(GameSessionNotFoundException::new);
+                .orElseThrow(() -> new GameSessionNotFoundException(playerId));
         if (!session.getPlayers().containsKey(playerId)) {
             throw new NotSessionParticipantException(playerId);
         }
@@ -158,7 +158,7 @@ public class GameServiceImpl implements GameService{
 
     @Override
     public GameFieldValue getPlayerValue(Long gameId, Long playerId){
-        var gameSession = gameCore.findSessionById(gameId).orElseThrow(GameSessionNotFoundException::new);
+        var gameSession = gameCore.findSessionById(gameId).orElseThrow(() -> new GameSessionNotFoundException(playerId));
         return gameSession.getPlayers().getOrDefault(playerId, GameFieldValue.NONE);
     }
 }

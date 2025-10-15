@@ -22,9 +22,9 @@ public class MessageCacheServiceImpl implements MessageCacheService {
     }
 
     @Override
-    public Long findGameBySessionId(String sessionId) {
+    public Long findGameBySessionId(Long playerId,String sessionId) {
         if (cache.containsKey(sessionId)) return cache.get(sessionId);
-        else throw new GameSessionNotFoundException();
+        else throw new GameSessionNotFoundException(playerId);
     }
 
     @Override

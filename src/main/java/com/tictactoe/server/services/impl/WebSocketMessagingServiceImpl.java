@@ -1,5 +1,6 @@
 package com.tictactoe.server.services.impl;
 
+import com.tictactoe.server.dto.ErrorMessageDto;
 import com.tictactoe.server.dto.GameConnectionStatusMessageDto;
 import com.tictactoe.server.dto.GameSessionStatusMessageDto;
 import com.tictactoe.server.dto.MoveMessageDto;
@@ -18,6 +19,7 @@ public class WebSocketMessagingServiceImpl implements WebSocketMessagingService 
     private final String GAME_MOVE_DESTINATION = "/game/moves/%s";
     private final String GAME_STATUS_DESTINATION = "/game/status/%s";
     private final String CONNECTION_STATUS_DESTINATION = "/game/connection/%s";
+    private final String PLAYER_ERROR_DESTINATION = "/errors/%s";
 
     @Override
     public void sendMoveMessage(MoveMessageDto dto, Long gameId) {
@@ -32,5 +34,10 @@ public class WebSocketMessagingServiceImpl implements WebSocketMessagingService 
     @Override
     public void sendConnectionStatusMessage(GameConnectionStatusMessageDto dto, Long gameId) {
         simpMessagingTemplate.convertAndSend(CONNECTION_STATUS_DESTINATION.formatted(gameId), dto);
+    }
+
+    @Override
+    public void sendErrorMessage(ErrorMessageDto dto, Long playerId) {
+        simpMessagingTemplate.convertAndSend(PLAYER_ERROR_DESTINATION.formatted(playerId), dto);
     }
 }

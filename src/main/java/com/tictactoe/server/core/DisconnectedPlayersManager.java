@@ -25,7 +25,6 @@ public class DisconnectedPlayersManager{
     public Set<Pair<Long, Long>> getExpiredPlayers(Long acceptableDisconnectTime) {
         Date nowTime = new Date();
         Set<Pair<Long, Long>> playersWithExpiredTimers = new LinkedHashSet<>();
-        System.out.println("DISCONNECTED PLAYERS CACHE: " + playerDisconnectTime);
 
         for (Pair<Long, Long> playerIdGameIdPair : playerDisconnectTime.keySet()) {
             Long playerId = playerIdGameIdPair.getFirst();

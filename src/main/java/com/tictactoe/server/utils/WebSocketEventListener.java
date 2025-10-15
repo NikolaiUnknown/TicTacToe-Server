@@ -41,7 +41,8 @@ public class WebSocketEventListener {
             } else {
                 if (unstartedGamesManager.isUnstarted(gameId)){
                     unstartedGamesManager.removeFromUnstarted(gameId);
-                    var gameSession = gameCore.findSessionById(gameId).orElseThrow(GameSessionNotFoundException::new);
+                    var gameSession = gameCore.findSessionById(gameId)
+                            .orElseThrow(() -> new GameSessionNotFoundException(playerId));
                     gameSession.getPlayers().keySet().forEach((Long id) -> {
                                 if (!id.equals(playerId)){
                                     disconnectedPlayersManager.markDisconnected(gameId,id);
@@ -59,7 +60,7 @@ public class WebSocketEventListener {
         Long playerId = ((UserDetailsImpl)((Authentication)event.getUser()).getPrincipal()).getPlayer().getId();
         String sessionId = getSessionId(event);
         try {
-            Long gameId = messageCacheService.findGameBySessionId(sessionId);
+            Long gameId = messageCacheService.findGameBySessionId(playerId,sessionId);
             disconnectedPlayersManager.markDisconnected(gameId,playerId);
             GameConnectionStatusMessageDto dto = new GameConnectionStatusMessageDto(ConnectionStatus.DISCONNECTED,playerId);
             webSocketMessagingService.sendConnectionStatusMessage(dto, gameId);

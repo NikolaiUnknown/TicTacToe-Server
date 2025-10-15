@@ -27,7 +27,7 @@ public class GameSession {
 
     public GameSessionStatus move(Long playerId, GameCoord coord){
         if (!gameBoard.get(coord).equals(GameFieldValue.NONE)) {
-            throw new FieldIsAlreadyUsedException(coord.toString());
+            throw new FieldIsAlreadyUsedException(playerId,coord.toString());
         }
         GameFieldValue currentValue = null;
         if (moveCounter % 2 == 0) {
@@ -36,7 +36,7 @@ public class GameSession {
             currentValue = GameFieldValue.O;
         }
         if (!players.get(playerId).equals(currentValue)) {
-            throw new PrematureMoveException(currentValue);
+            throw new PrematureMoveException(playerId,currentValue);
         }
         gameBoard.put(coord,players.get(playerId));
         moveCounter++;
