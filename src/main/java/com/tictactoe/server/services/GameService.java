@@ -26,4 +26,6 @@ public interface GameService {
 
     GameFieldValue getPlayerValue(Long gameId, Long playerId);
 
+    void cancelGame(Long gameId);
+
 }

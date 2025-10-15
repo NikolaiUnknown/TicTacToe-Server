@@ -2,6 +2,7 @@ package com.tictactoe.server.services.impl;
 
 import com.tictactoe.server.core.GameCore;
 import com.tictactoe.server.core.GameSession;
+import com.tictactoe.server.core.UnstartedGamesManager;
 import com.tictactoe.server.dto.GameSessionStatusMessageDto;
 import com.tictactoe.server.dto.MoveMessageDto;
 import com.tictactoe.server.enums.GameCoord;
@@ -33,6 +34,8 @@ public class GameServiceImpl implements GameService{
     private final PlayerRepository playerRepository;
     private final WebSocketMessagingService webSocketMessagingService;
     private final MessageCacheService messageCacheService;
+    private final UnstartedGamesManager unstartedGamesManager;
+
 
     @Value("${game.rating_increase}")
     private int ratingIncrease;
@@ -56,6 +59,7 @@ public class GameServiceImpl implements GameService{
     }
 
     private GameSession createGameSession(Game game) {
+        unstartedGamesManager.markUnstarted(game.getId(),game.getDateOfStart().getTime());
         return gameCore.createNewGameSession(game);
     }
 
@@ -124,7 +128,22 @@ public class GameServiceImpl implements GameService{
             return createGameSession(game);
         } else{
             throw new InvalidGameStatusException(game.getStatus());
-        } 
+        }
+    }
+
+    @Override
+    public void cancelGame(Long gameId) {
+        Game game = gameRepository.findById(gameId)
+                .orElseThrow(GameNotFoundException::new);
+        if (game.getStatus().equals(GameStatus.PROPOSED) || game.getStatus().equals(GameStatus.IN_PROCESS)) {
+            game.setStatus(GameStatus.CANCELED);
+            gameRepository.save(game);
+            if (gameCore.findSessionById(gameId).isPresent()){
+                deleteGameSession(gameId);
+            }
+        } else{
+            throw new InvalidGameStatusException(game.getStatus());
+        }
     }
 
     @Override

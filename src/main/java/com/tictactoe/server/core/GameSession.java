@@ -20,7 +20,7 @@ public class GameSession {
     private int moveCounter = 0;
 
     public GameSession(Long playerX, Long playerO) {
-        initgameBoard();
+        initGameBoard();
         players = Map.of(playerX,GameFieldValue.X,playerO,GameFieldValue.O);
     }
 
@@ -50,7 +50,7 @@ public class GameSession {
         return GameSessionStatus.CONTINUE;
     }
 
-    private void initgameBoard(){
+    private void initGameBoard(){
         gameBoard = new EnumMap<>(GameCoord.class);
         for (GameCoord coord: GameCoord.values()){
             gameBoard.put(coord,GameFieldValue.NONE);

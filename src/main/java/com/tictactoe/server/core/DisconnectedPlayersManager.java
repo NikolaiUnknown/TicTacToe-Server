@@ -1,7 +1,8 @@
 package com.tictactoe.server.core;
 
+import com.tictactoe.server.enums.GameFieldValue;
+import com.tictactoe.server.enums.GameSessionStatus;
 import com.tictactoe.server.exceptions.PlayerNotFoundException;
-import com.tictactoe.server.repositories.DisconnectedPlayersRepository;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Component;
 
@@ -10,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @Component
-public class DisconnectedPlayersManager implements DisconnectedPlayersRepository {
+public class DisconnectedPlayersManager{
     //              gameId/playerIds
     private final Map<Long, List<Long>> cache;
     //              playerId,gameId/DisconnectTime
@@ -21,11 +22,21 @@ public class DisconnectedPlayersManager implements DisconnectedPlayersRepository
         this.cache = new ConcurrentHashMap<>();
     }
 
-    public Map<Pair<Long, Long>, Long> getPlayersWithDisconnectTime(){
-        return this.playerDisconnectTime;
+    public Set<Pair<Long, Long>> getExpiredPlayers(Long acceptableDisconnectTime) {
+        Date nowTime = new Date();
+        Set<Pair<Long, Long>> playersWithExpiredTimers = new LinkedHashSet<>();
+        System.out.println("DISCONNECTED PLAYERS CACHE: " + playerDisconnectTime);
+
+        for (Pair<Long, Long> playerIdGameIdPair : playerDisconnectTime.keySet()) {
+            Long playerId = playerIdGameIdPair.getFirst();
+            Long gameId = playerIdGameIdPair.getSecond();
+            if (nowTime.getTime() - playerDisconnectTime.get(Pair.of(playerId, gameId)) > acceptableDisconnectTime) {
+                playersWithExpiredTimers.add(playerIdGameIdPair);
+            }
+        }
+        return playersWithExpiredTimers;
     }
 
-    @Override
     public void markDisconnected(Long gameId,Long playerId) {
         if (cache.containsKey(gameId)){
             var disconnectedPlayers = cache.get(gameId);
@@ -38,7 +49,6 @@ public class DisconnectedPlayersManager implements DisconnectedPlayersRepository
     }
 
 
-    @Override
     public boolean isDisconnected(Long gameId, Long playerId) {
         if (!cache.containsKey(gameId)){
             return false;
@@ -46,7 +56,6 @@ public class DisconnectedPlayersManager implements DisconnectedPlayersRepository
         return cache.get(gameId).contains(playerId);
     }
 
-    @Override
     public void remove(Long gameId, Long playerId) {
         if (cache.containsKey(gameId)){
             cache.get(gameId).remove(playerId);
@@ -56,16 +65,11 @@ public class DisconnectedPlayersManager implements DisconnectedPlayersRepository
         throw new PlayerNotFoundException();
     }
 
-    //FIXME
-    @Override
     public void removeAllByGameId(Long gameId) {
-        System.out.println("cache: " + cache.get(gameId));
         var players = cache.get(gameId);
-        System.out.println(players);
         for (Long playerId: players){
             playerDisconnectTime.remove(Pair.of(playerId,gameId));
             cache.get(gameId).remove(playerId);
         }
-        System.out.println("new cache: " + playerDisconnectTime);
     }
 }

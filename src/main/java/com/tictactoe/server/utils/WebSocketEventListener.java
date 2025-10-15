@@ -1,9 +1,11 @@
 package com.tictactoe.server.utils;
 
+import com.tictactoe.server.core.DisconnectedPlayersManager;
+import com.tictactoe.server.core.GameCore;
+import com.tictactoe.server.core.UnstartedGamesManager;
 import com.tictactoe.server.dto.GameConnectionStatusMessageDto;
 import com.tictactoe.server.enums.ConnectionStatus;
 import com.tictactoe.server.exceptions.GameSessionNotFoundException;
-import com.tictactoe.server.repositories.DisconnectedPlayersRepository;
 import com.tictactoe.server.security.UserDetailsImpl;
 import com.tictactoe.server.services.MessageCacheService;
 import com.tictactoe.server.services.WebSocketMessagingService;
@@ -19,9 +21,11 @@ import org.springframework.web.socket.messaging.SessionSubscribeEvent;
 @RequiredArgsConstructor
 public class WebSocketEventListener {
 
-    private final DisconnectedPlayersRepository disconnectedPlayersRepository;
+    private final DisconnectedPlayersManager disconnectedPlayersManager;
     private final WebSocketMessagingService webSocketMessagingService;
     private final MessageCacheService messageCacheService;
+    private final UnstartedGamesManager unstartedGamesManager;
+    private final GameCore gameCore;
 
     @EventListener
     public void handleEvent(SessionSubscribeEvent event){
@@ -30,10 +34,20 @@ public class WebSocketEventListener {
         if (subscribeDestination.startsWith("/game/moves/")){
             Long gameId = Long.parseLong(subscribeDestination.substring(12));
             String sessionId = getSessionId(event);
-            if (disconnectedPlayersRepository.isDisconnected(gameId,playerId)) {
+            if (disconnectedPlayersManager.isDisconnected(gameId,playerId)) {
                 var dto = new GameConnectionStatusMessageDto(ConnectionStatus.RECONNECTED,playerId);
                 webSocketMessagingService.sendConnectionStatusMessage(dto,gameId);
-                disconnectedPlayersRepository.remove(gameId,playerId);
+                disconnectedPlayersManager.remove(gameId,playerId);
+            } else {
+                if (unstartedGamesManager.isUnstarted(gameId)){
+                    unstartedGamesManager.removeFromUnstarted(gameId);
+                    var gameSession = gameCore.findSessionById(gameId).orElseThrow(GameSessionNotFoundException::new);
+                    gameSession.getPlayers().keySet().forEach((Long id) -> {
+                                if (!id.equals(playerId)){
+                                    disconnectedPlayersManager.markDisconnected(gameId,id);
+                                }
+                            });
+                }
             }
             messageCacheService.addSubscribe(sessionId,gameId);
         }
@@ -46,7 +60,7 @@ public class WebSocketEventListener {
         String sessionId = getSessionId(event);
         try {
             Long gameId = messageCacheService.findGameBySessionId(sessionId);
-            disconnectedPlayersRepository.markDisconnected(gameId,playerId);
+            disconnectedPlayersManager.markDisconnected(gameId,playerId);
             GameConnectionStatusMessageDto dto = new GameConnectionStatusMessageDto(ConnectionStatus.DISCONNECTED,playerId);
             webSocketMessagingService.sendConnectionStatusMessage(dto, gameId);
         } catch (GameSessionNotFoundException ignored) {
