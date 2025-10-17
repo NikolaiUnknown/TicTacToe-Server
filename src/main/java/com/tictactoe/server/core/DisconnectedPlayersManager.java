@@ -1,7 +1,5 @@
 package com.tictactoe.server.core;
 
-import com.tictactoe.server.enums.GameFieldValue;
-import com.tictactoe.server.enums.GameSessionStatus;
 import com.tictactoe.server.exceptions.PlayerNotFoundException;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Component;

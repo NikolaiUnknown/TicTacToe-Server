@@ -3,6 +3,7 @@ package com.tictactoe.server.services.impl;
 import com.tictactoe.server.core.GameCore;
 import com.tictactoe.server.core.GameSession;
 import com.tictactoe.server.enums.GameCoord;
+import com.tictactoe.server.enums.GameFieldValue;
 import com.tictactoe.server.enums.GameStatus;
 import com.tictactoe.server.exceptions.*;
 import com.tictactoe.server.models.Game;
@@ -190,5 +191,18 @@ public class GameServiceTest {
         verify(gameRepository,times(1)).findAllGamesBySecondPlayerIdAndStatus(anyLong(),any());
 
     }
-    
+
+    @Test
+    void testGetPlayersValues() {
+        when(gameCore.findSessionById(0L)).thenReturn(Optional.of(new GameSession(0L,1L)));
+        assertEquals(GameFieldValue.X,gameServiceImpl.getPlayerValue(0L,0L));
+        assertEquals(GameFieldValue.O,gameServiceImpl.getPlayerValue(0L,1L));
+        assertEquals(GameFieldValue.NONE,gameServiceImpl.getPlayerValue(0L,2L));
+    }
+
+    @Test
+    void testGetPlayerValueFromNonExistGame() {
+        assertThrows(GameSessionNotFoundException.class,() -> gameServiceImpl.getPlayerValue(0L,0L));
+    }
+
 }
