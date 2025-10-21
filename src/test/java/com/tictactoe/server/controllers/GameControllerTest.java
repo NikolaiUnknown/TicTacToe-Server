@@ -10,6 +10,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.List;
 
+import com.tictactoe.server.enums.GameFieldValue;
+import com.tictactoe.server.services.GameSessionService;
+import com.tictactoe.server.services.WebSocketMessagingService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -43,7 +46,13 @@ public class GameControllerTest {
 
     @MockitoBean
     private GameService gameService;
-    
+    @MockitoBean
+    private GameSessionService gameSessionService;
+
+    @MockitoBean
+    private WebSocketMessagingService webSocketMessagingService;
+
+
     @MockitoBean
     private GameMapper gameMapper;
 
@@ -183,5 +192,15 @@ public class GameControllerTest {
                 .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.errorMsg").value("Player not found"));        
+    }
+
+    @Test
+    @WithUserDetails
+    void getMyValue() throws Exception {
+        when(gameSessionService.getPlayerValue(0L,0L)).thenReturn(GameFieldValue.X);
+        mockMvc.perform(get("/api/v1/games/value")
+                        .param("game","0"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").value("X"));
     }
 }

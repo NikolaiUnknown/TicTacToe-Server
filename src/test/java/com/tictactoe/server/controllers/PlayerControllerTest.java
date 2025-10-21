@@ -8,6 +8,7 @@ import com.tictactoe.server.mappers.PlayerMapper;
 import com.tictactoe.server.models.Player;
 import com.tictactoe.server.security.JwtCore;
 import com.tictactoe.server.services.PlayerService;
+import com.tictactoe.server.services.WebSocketMessagingService;
 import com.tictactoe.server.utils.TestUserDetailsService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +44,10 @@ class PlayerControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @MockitoBean
+    private WebSocketMessagingService webSocketMessagingService;
+
 
     @Test
     @WithUserDetails

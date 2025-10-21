@@ -1,15 +1,17 @@
 package com.tictactoe.server.services.impl;
 
-import com.tictactoe.server.core.GameCore;
 import com.tictactoe.server.core.GameSession;
-import com.tictactoe.server.enums.GameCoord;
-import com.tictactoe.server.enums.GameFieldValue;
+import com.tictactoe.server.enums.GameSessionStatus;
 import com.tictactoe.server.enums.GameStatus;
-import com.tictactoe.server.exceptions.*;
+import com.tictactoe.server.exceptions.GameNotFoundException;
+import com.tictactoe.server.exceptions.InvalidGameStatusException;
+import com.tictactoe.server.exceptions.PlayerNotFoundException;
+import com.tictactoe.server.exceptions.SelfRequestException;
 import com.tictactoe.server.models.Game;
 import com.tictactoe.server.models.Player;
 import com.tictactoe.server.repositories.GameRepository;
 import com.tictactoe.server.repositories.PlayerRepository;
+import com.tictactoe.server.services.GameSessionService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -32,14 +34,10 @@ public class GameServiceTest {
     @Mock
     private GameRepository gameRepository;
     @Mock
-    private GameCore gameCore;
+    private GameSessionService gameSessionService;
     @Mock
     private PlayerRepository playerRepository;
 
-    @Mock
-    private WebSocketMessagingServiceImpl webSocketMessagingService;
-    @Mock
-    private MessageCacheServiceImpl messageCacheService;
 
     @InjectMocks
     private GameServiceImpl gameServiceImpl;
@@ -49,13 +47,15 @@ public class GameServiceTest {
     void testAcceptSuccessfulProposition() {
         Game game = Game.builder()
                     .secondPlayer(new Player(0L))
+                    .dateOfStart(new Date())
                     .status(GameStatus.PROPOSED)
                     .build();
-        when(gameRepository.findById(anyLong())).thenReturn(Optional.of(game)); 
-        assertDoesNotThrow(() -> gameServiceImpl.acceptProposition(0L,0L));
+        when(gameRepository.findById(anyLong())).thenReturn(Optional.of(game));
+        var session = new GameSession(0L,1L);
+        when(gameSessionService.createGameSession(game)).thenReturn(session);
+        assertEquals(session,gameServiceImpl.acceptProposition(0L,0L));
         assertEquals(GameStatus.IN_PROCESS, game.getStatus());
         verify(gameRepository,times(1)).save(any(Game.class));
-        verify(gameCore,times(1)).createNewGameSession(any(Game.class));
     }
 
     @Test
@@ -114,70 +114,6 @@ public class GameServiceTest {
     }
 
     @Test
-    void testSuccessfulContinueMove() {
-        GameSession session = new GameSession(0L,1L);
-        when(gameCore.findSessionById(0L)).thenReturn(Optional.of(session));
-        assertDoesNotThrow(()-> gameServiceImpl.move(0L,0L,GameCoord.COORD_0_0));
-    }
-
-    @Test
-    void testWinMove() {
-        GameSession session = new GameSession(0L,1L);
-        Player playerX = new Player(0L);
-        Player playerO = new Player(1L);
-        playerX.setRating(0);
-        playerO.setRating(0);
-        Game game = Game.builder()
-                    .id(0L)
-                    .firstPlayer(playerX)
-                    .secondPlayer(playerO)
-                    .dateOfStart(new Date())
-                    .status(GameStatus.IN_PROCESS)
-                    .build();
-        when(gameCore.findSessionById(0L)).thenReturn(Optional.of(session));
-        when(gameRepository.findById(0L)).thenReturn(Optional.of(game));
-        session.move(0L,GameCoord.COORD_0_0);
-        session.move(1L,GameCoord.COORD_1_0);
-        session.move(0L,GameCoord.COORD_0_1);
-        session.move(1L,GameCoord.COORD_1_1);
-        assertDoesNotThrow(()-> gameServiceImpl.move(0L,0L,GameCoord.COORD_0_2));
-        verify(gameRepository,times(1)).save(any(Game.class));
-    }
-
-    @Test
-    void testPrematureMove() {
-        GameSession session = new GameSession(0L,1L);
-        when(gameCore.findSessionById(0L)).thenReturn(Optional.of(session));
-        session.move(0L,GameCoord.COORD_0_0);
-        assertThrows(PrematureMoveException.class,
-                ()-> gameServiceImpl.move(0L,0L,GameCoord.COORD_0_1));
-    }
-
-    
-    @Test
-    void testMoveInAlreadyUsedField() {
-        GameSession session = new GameSession(0L,1L);
-        when(gameCore.findSessionById(0L)).thenReturn(Optional.of(session));
-        session.move(0L,GameCoord.COORD_0_0);
-        assertThrows(FieldIsAlreadyUsedException.class,
-                ()-> gameServiceImpl.move(1L,0L,GameCoord.COORD_0_0));
-
-    }
-
-    @Test
-    void testMoveInForbiddenGame() {
-        when(gameCore.findSessionById(0L)).thenReturn(Optional.of(new GameSession(1L,2L)));
-        assertThrows(NotSessionParticipantException.class,
-                ()-> gameServiceImpl.move(0L, 0L, null));
-    }
-
-    @Test
-    void testMoveWithNonExistGameSession() {
-        assertThrows(GameSessionNotFoundException.class,
-                ()-> gameServiceImpl.move(0L, 0L, null));
-    }
-
-    @Test
     void testGetAllGames() {
         when(gameRepository.findGamesByPlayerId(0L)).thenReturn(Collections.emptyList());
         assertEquals(Collections.emptyList(),gameServiceImpl.getAllGames(0L));
@@ -193,16 +129,24 @@ public class GameServiceTest {
     }
 
     @Test
-    void testGetPlayersValues() {
-        when(gameCore.findSessionById(0L)).thenReturn(Optional.of(new GameSession(0L,1L)));
-        assertEquals(GameFieldValue.X,gameServiceImpl.getPlayerValue(0L,0L));
-        assertEquals(GameFieldValue.O,gameServiceImpl.getPlayerValue(0L,1L));
-        assertEquals(GameFieldValue.NONE,gameServiceImpl.getPlayerValue(0L,2L));
+    void testSuccessfulRegisterGameResult() {
+        Game game = Game.builder()
+                .id(0L)
+                .firstPlayer(new Player(0L))
+                .secondPlayer(new Player(1L))
+                .build();
+        game.getFirstPlayer().setRating(0);
+        game.getSecondPlayer().setRating(0);
+        when(gameRepository.findById(0L)).thenReturn(Optional.of(game));
+        assertDoesNotThrow(() -> gameServiceImpl.registerGameResult(0L,GameSessionStatus.X_WIN));
+        verify(gameRepository,times(1)).save(any(Game.class));
+        verify(gameSessionService, times(1)).registerGameSessionResult(0L,GameSessionStatus.X_WIN);
+        verify(playerRepository,times(1)).saveAll(anyCollection());
     }
 
     @Test
-    void testGetPlayerValueFromNonExistGame() {
-        assertThrows(GameSessionNotFoundException.class,() -> gameServiceImpl.getPlayerValue(0L,0L));
+    void testRegisterNonExistGameResult() {
+        assertThrows(GameNotFoundException.class,
+                ()-> gameServiceImpl.registerGameResult(0L, GameSessionStatus.X_WIN));
     }
-
 }
