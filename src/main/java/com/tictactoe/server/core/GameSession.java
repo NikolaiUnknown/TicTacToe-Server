@@ -23,7 +23,7 @@ public class GameSession {
             {GameCoord.COORD_2_0, GameCoord.COORD_2_1, GameCoord.COORD_2_2 },
             {GameCoord.COORD_0_0, GameCoord.COORD_1_0, GameCoord.COORD_2_0 },
             {GameCoord.COORD_0_1, GameCoord.COORD_1_1, GameCoord.COORD_2_1 },
-            {GameCoord.COORD_0_2, GameCoord.COORD_2_2, GameCoord.COORD_2_2 },
+            {GameCoord.COORD_0_2, GameCoord.COORD_1_2, GameCoord.COORD_2_2 },
             {GameCoord.COORD_0_0, GameCoord.COORD_1_1, GameCoord.COORD_2_2 },
             {GameCoord.COORD_0_2, GameCoord.COORD_1_1, GameCoord.COORD_2_0 }
     };
