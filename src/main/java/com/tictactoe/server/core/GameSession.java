@@ -17,6 +17,17 @@ public class GameSession {
     @Getter
     private Map<Long,GameFieldValue> players;
 
+    private final GameCoord[][] WIN_PATTERNS = {
+            {GameCoord.COORD_0_0, GameCoord.COORD_0_1, GameCoord.COORD_0_2 },
+            {GameCoord.COORD_1_0, GameCoord.COORD_1_1, GameCoord.COORD_1_2 },
+            {GameCoord.COORD_2_0, GameCoord.COORD_2_1, GameCoord.COORD_2_2 },
+            {GameCoord.COORD_0_0, GameCoord.COORD_1_0, GameCoord.COORD_2_0 },
+            {GameCoord.COORD_0_1, GameCoord.COORD_1_1, GameCoord.COORD_2_1 },
+            {GameCoord.COORD_0_2, GameCoord.COORD_2_2, GameCoord.COORD_2_2 },
+            {GameCoord.COORD_0_0, GameCoord.COORD_1_1, GameCoord.COORD_2_2 },
+            {GameCoord.COORD_0_2, GameCoord.COORD_1_1, GameCoord.COORD_2_0 }
+    };
+
     private int moveCounter = 0;
 
     public GameSession(Long playerX, Long playerO) {
@@ -58,30 +69,16 @@ public class GameSession {
     }
 
     private boolean checkWin(GameFieldValue value){
-        return (gameBoard.get(GameCoord.COORD_0_0).equals(value) &&
-                gameBoard.get(GameCoord.COORD_0_1).equals(value) &&
-                gameBoard.get(GameCoord.COORD_0_2).equals(value)) ||
-                (gameBoard.get(GameCoord.COORD_1_0).equals(value) &&
-                gameBoard.get(GameCoord.COORD_1_1).equals(value) &&
-                gameBoard.get(GameCoord.COORD_1_2).equals(value)) ||
-                (gameBoard.get(GameCoord.COORD_2_0).equals(value) &&
-                gameBoard.get(GameCoord.COORD_2_1).equals(value) &&
-                gameBoard.get(GameCoord.COORD_2_2).equals(value)) ||
-                (gameBoard.get(GameCoord.COORD_0_0).equals(value) &&
-                gameBoard.get(GameCoord.COORD_1_0).equals(value) &&
-                gameBoard.get(GameCoord.COORD_2_0).equals(value)) ||
-                (gameBoard.get(GameCoord.COORD_0_1).equals(value) &&
-                gameBoard.get(GameCoord.COORD_1_1).equals(value) &&
-                gameBoard.get(GameCoord.COORD_2_1).equals(value)) ||
-                (gameBoard.get(GameCoord.COORD_0_2).equals(value) &&
-                gameBoard.get(GameCoord.COORD_1_2).equals(value) &&
-                gameBoard.get(GameCoord.COORD_2_2).equals(value)) ||
-                (gameBoard.get(GameCoord.COORD_0_0).equals(value) &&
-                gameBoard.get(GameCoord.COORD_1_1).equals(value) &&
-                gameBoard.get(GameCoord.COORD_2_2).equals(value)) ||
-                (gameBoard.get(GameCoord.COORD_0_2).equals(value) &&
-                gameBoard.get(GameCoord.COORD_1_1).equals(value) &&
-                gameBoard.get(GameCoord.COORD_2_0).equals(value));
+        for (GameCoord[] coords: WIN_PATTERNS){
+            int counter = 0;
+            for (GameCoord coord: coords){
+                if (gameBoard.get(coord).equals(value)){
+                    counter++;
+                }
+            }
+            if (counter == 3) return true;
+        }
+        return false;
     }
     private boolean checkTie(){
         return moveCounter == 9;
