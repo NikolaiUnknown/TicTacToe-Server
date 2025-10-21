@@ -18,7 +18,6 @@ public class GlobalWebSocketExceptionHandler {
 
     @MessageExceptionHandler
     public void fieldIsAlreadyUsedHandler(WebSocketGameException e){
-        System.out.println("handleException");
         ErrorMessageDto errorMessageDto = new ErrorMessageDto(e.getMessage(), new Date());
         webSocketMessagingService.sendErrorMessage(errorMessageDto, e.getPlayerId());
     }

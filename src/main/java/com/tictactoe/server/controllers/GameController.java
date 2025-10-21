@@ -6,6 +6,7 @@ import com.tictactoe.server.enums.GameFieldValue;
 import com.tictactoe.server.mappers.GameMapper;
 import com.tictactoe.server.security.UserDetailsImpl;
 import com.tictactoe.server.services.GameService;
+import com.tictactoe.server.services.GameSessionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,7 @@ public class GameController {
 
     private final GameService gameService;
     private final GameMapper gameMapper;
+    private final GameSessionService gameSessionService;
 
     @GetMapping("/")
     public ResponseEntity<List<GameResponseDto>> getAllGames(
@@ -61,7 +63,7 @@ public class GameController {
     @GetMapping("/value")
     public ResponseEntity<GameFieldValue> getMyValue(@RequestParam("game") Long gameId,
                                  @AuthenticationPrincipal UserDetailsImpl userDetails){
-        return ResponseEntity.ok(gameService.getPlayerValue(gameId,userDetails.getPlayer().getId()));
+        return ResponseEntity.ok(gameSessionService.getPlayerValue(gameId,userDetails.getPlayer().getId()));
     }
 
 }

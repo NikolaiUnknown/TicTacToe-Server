@@ -2,6 +2,7 @@ package com.tictactoe.server.controllers;
 
 import com.tictactoe.server.dto.MoveRequestDto;
 import com.tictactoe.server.security.UserDetailsImpl;
+import com.tictactoe.server.services.GameMoveService;
 import com.tictactoe.server.services.GameService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
@@ -18,12 +19,12 @@ import java.security.Principal;
 @RequiredArgsConstructor
 public class GameHandler {
 
-    private final GameService gameService;
+    private final GameMoveService gameMoveService;
 
     @MessageMapping("/game/move")
     public void move(Authentication authentication, @Payload MoveRequestDto moveRequestDto){
         var userDetails = (UserDetailsImpl)authentication.getPrincipal();
-        gameService.move(userDetails.getPlayer().getId(), moveRequestDto.gameId(),moveRequestDto.coord());
+        gameMoveService.move(userDetails.getPlayer().getId(), moveRequestDto.gameId(),moveRequestDto.coord());
     }
 
 }
