@@ -5,6 +5,7 @@ import com.tictactoe.server.core.UnstartedGamesManager;
 import com.tictactoe.server.enums.GameFieldValue;
 import com.tictactoe.server.enums.GameSessionStatus;
 import com.tictactoe.server.services.GameService;
+import com.tictactoe.server.services.GameSessionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,16 +25,17 @@ public class ScheduleTasks {
     private final DisconnectedPlayersManager disconnectedPlayersManager;
     private final UnstartedGamesManager unstartedGamesManager;
     private final GameService gameService;
+    private final GameSessionService gameSessionService;
 
     @Scheduled(fixedRate = 1000)
     public void scheduleLoseTimer(){
         for (Pair<Long,Long> playerIdGameIdPair: disconnectedPlayersManager.getExpiredPlayers(acceptableDisconnectTime)){
             Long playerId = playerIdGameIdPair.getFirst();
             Long gameId = playerIdGameIdPair.getSecond();
-            GameFieldValue value =  gameService.getPlayerValue(gameId,playerId);
+            GameFieldValue value =  gameSessionService.getPlayerValue(gameId,playerId);
             switch (value){
-                    case X -> gameService.regResult(gameId, GameSessionStatus.O_WIN);
-                    case O -> gameService.regResult(gameId, GameSessionStatus.X_WIN);
+                    case X -> gameService.registerGameResult(gameId, GameSessionStatus.O_WIN);
+                    case O -> gameService.registerGameResult(gameId, GameSessionStatus.X_WIN);
                 }
             disconnectedPlayersManager.removeAllByGameId(gameId);
             return;
