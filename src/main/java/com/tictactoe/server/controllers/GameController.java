@@ -61,9 +61,9 @@ public class GameController {
     }
 
     @GetMapping("/value")
-    public ResponseEntity<GameFieldValue> getMyValue(@RequestParam("game") Long gameId,
+    public ResponseEntity<String> getMyValue(@RequestParam("game") Long gameId,
                                  @AuthenticationPrincipal UserDetailsImpl userDetails){
-        return ResponseEntity.ok(gameSessionService.getPlayerValue(gameId,userDetails.getPlayer().getId()));
+        return ResponseEntity.ok(gameSessionService.getPlayerValue(gameId,userDetails.getPlayer().getId()).name());
     }
 
 }
