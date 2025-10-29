@@ -1,10 +1,14 @@
 package com.tictactoe.server.mappers;
 
+import com.tictactoe.server.dto.GameResponseDto;
 import com.tictactoe.server.dto.PlayerResponseDto;
+import com.tictactoe.server.models.Game;
 import org.mapstruct.*;
 
 import com.tictactoe.server.dto.RegisterRequestDto;
 import com.tictactoe.server.models.Player;
+
+import java.util.List;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface PlayerMapper {
@@ -19,5 +23,7 @@ public interface PlayerMapper {
     Player toPlayer(PlayerResponseDto playerResponseDto);
 
     PlayerResponseDto toDto(Player player);
+
+    List<PlayerResponseDto> playersToDtos(List<Player> players);
 
 }

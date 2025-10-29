@@ -89,5 +89,11 @@ public class GlobalControllerExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(exception = GameSessionNotFoundException.class)
+    public ResponseEntity<ErrorResponseDto> gameSessionNotFoundHandler(GameSessionNotFoundException e){
+        ErrorResponseDto error = new ErrorResponseDto(e.getMessage(),new Date(),404);
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
 
  }

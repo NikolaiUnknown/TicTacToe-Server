@@ -1,7 +1,10 @@
 package com.tictactoe.server.services.impl;
 
 import java.util.Date;
+import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -35,5 +38,10 @@ public class PlayerServiceImpl implements PlayerService {
         player.setRating(0);
         playerRepository.save(player);
     }
-    
+
+    @Override
+    public List<Player> loadLeaders(int page) {
+        return playerRepository.findPlayersOrderByRatingDesc(PageRequest.of(page,10));
+    }
+
 }

@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/players")
@@ -31,5 +33,10 @@ public class PlayerController {
         return ResponseEntity.ok(dto);
     }
 
+    @GetMapping("/leaders/{page}")
+    public ResponseEntity<List<PlayerResponseDto>> getLeaders(@PathVariable Integer page){
+        var dto = playerMapper.playersToDtos(playerService.loadLeaders(page));
+        return ResponseEntity.ok(dto);
+    }
 
 }
