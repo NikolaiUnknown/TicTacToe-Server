@@ -19,4 +19,11 @@ public interface PlayerRepository extends CrudRepository<Player,Long>{
             ORDER BY p.rating DESC
             """)
     List<Player> findPlayersOrderByRatingDesc(Pageable pageable);
+
+    @Query("""
+            SELECT p.id
+            FROM Player p
+            ORDER BY p.rating DESC
+            """)
+    List<Long> findPlayerIdsOrderByRatingDesc();
 }

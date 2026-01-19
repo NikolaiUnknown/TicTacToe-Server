@@ -50,6 +50,7 @@ public class SecurityConfig {
                 .requestMatchers("/ws/connect/**").permitAll()
                 .requestMatchers("/api/v1/players/me").fullyAuthenticated()
                 .requestMatchers("/api/v1/players/**").permitAll()
+                .requestMatchers("/api/v1/games/players/**").permitAll()
                 .anyRequest().fullyAuthenticated()
             )
             .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);

@@ -30,9 +30,20 @@ public class GameController {
     ){
         var games = gameMapper.gamesToDtos(
             gameService.getAllGames(userDetails.getPlayer().getId())
-        ); 
+        );
         return ResponseEntity.ok(games);
     }
+
+    @GetMapping("/players/{id}")
+    public ResponseEntity<List<GameResponseDto>> getGamesHistory(
+            @PathVariable("id") Long id
+    ){
+        var games = gameMapper.gamesToDtos(
+                gameService.getGamesHistory(id)
+        );
+        return ResponseEntity.ok(games);
+    }
+
 
     @GetMapping("/propositions")
     public ResponseEntity<List<GameResponseDto>> getPropositions(

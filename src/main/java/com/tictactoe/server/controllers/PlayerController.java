@@ -1,16 +1,14 @@
 package com.tictactoe.server.controllers;
 
 import com.tictactoe.server.dto.PlayerResponseDto;
+import com.tictactoe.server.dto.PlayerStatsResponseDto;
 import com.tictactoe.server.mappers.PlayerMapper;
 import com.tictactoe.server.security.UserDetailsImpl;
 import com.tictactoe.server.services.PlayerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -33,10 +31,20 @@ public class PlayerController {
         return ResponseEntity.ok(dto);
     }
 
-    @GetMapping("/leaders/{page}")
-    public ResponseEntity<List<PlayerResponseDto>> getLeaders(@PathVariable Integer page){
+    @GetMapping("/leaders")
+    public ResponseEntity<List<PlayerResponseDto>> getLeaders(@RequestParam("page") Integer page){
         var dto = playerMapper.playersToDtos(playerService.loadLeaders(page));
         return ResponseEntity.ok(dto);
+    }
+
+    @GetMapping("/leaders/{id}")
+    public ResponseEntity<Integer> getPlaceInLeaderboard(@PathVariable("id") Long id){
+        return ResponseEntity.ok(playerService.getPlaceInLeaderboard(id));
+    }
+
+    @GetMapping("/stats/{id}")
+    public ResponseEntity<PlayerStatsResponseDto> getPlayerStats(@PathVariable("id") Long id){
+        return ResponseEntity.ok(playerService.getPlayerStats(id));
     }
 
 }

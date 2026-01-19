@@ -1,5 +1,6 @@
 package com.tictactoe.server.services;
 
+import com.tictactoe.server.dto.PlayerStatsResponseDto;
 import org.springframework.stereotype.Service;
 
 import com.tictactoe.server.models.Player;
@@ -14,4 +15,8 @@ public interface PlayerService {
     void registerNewPlayer(Player player);
 
     List<Player> loadLeaders(int page);
+
+    int getPlaceInLeaderboard(Long id);
+
+    PlayerStatsResponseDto getPlayerStats(Long id);
 }

@@ -19,7 +19,9 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
 @Service
 @RequiredArgsConstructor
@@ -110,6 +112,15 @@ public class GameServiceImpl implements GameService{
         } else{
             throw new InvalidGameStatusException(game.getStatus());
         }
+    }
+
+    @Override
+    public List<Game> getGamesHistory(Long userId) {
+        var gamesHistory = new LinkedHashSet<Game>();
+        gamesHistory.addAll(gameRepository.findGamesByPlayerIdAndStatus(userId,GameStatus.PROPOSED));
+        gamesHistory.addAll(gameRepository.findGamesByPlayerIdAndStatus(userId,GameStatus.IN_PROCESS));
+        gamesHistory.addAll(gameRepository.findGamesByPlayerId(userId));
+        return new ArrayList<>(gamesHistory);
     }
 
     @Override

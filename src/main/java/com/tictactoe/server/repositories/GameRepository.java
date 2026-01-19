@@ -2,6 +2,7 @@ package com.tictactoe.server.repositories;
 
 import java.util.List;
 
+import com.tictactoe.server.dto.GameResponseDto;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -12,7 +13,7 @@ import com.tictactoe.server.models.Game;
 
 @Repository
 public interface GameRepository extends CrudRepository<Game,Long> {
-    
+
     List<Game> findAllGamesBySecondPlayerIdAndStatus(Long id, GameStatus status);
 
     @Query("""
@@ -22,4 +23,14 @@ public interface GameRepository extends CrudRepository<Game,Long> {
             OR g.secondPlayer.id =:id
             """)
     List<Game> findGamesByPlayerId(@Param("id") Long id);
+
+    @Query("""
+            SELECT g
+            FROM Game g
+            WHERE (g.firstPlayer.id =:id
+            OR g.secondPlayer.id =:id)
+            AND g.status= :status
+            ORDER BY g.dateOfStart DESC
+            """)
+    List<Game> findGamesByPlayerIdAndStatus(@Param("id") Long id, @Param("status") GameStatus status);
 }
