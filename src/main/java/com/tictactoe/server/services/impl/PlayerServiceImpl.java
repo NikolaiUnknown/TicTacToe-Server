@@ -44,7 +44,7 @@ public class PlayerServiceImpl implements PlayerService {
     }
 
     @Override
-    public List<Player> loadLeaders(int page) {
+    public Page<Player> loadLeaders(int page) {
         return playerRepository.findPlayersOrderByRatingDesc(PageRequest.of(page,10));
     }
 
@@ -82,6 +82,11 @@ public class PlayerServiceImpl implements PlayerService {
             }
         }
         return new PlayerStatsResponseDto(loses+ties+wins,wins,loses,ties);
+    }
+
+    @Override
+    public List<Player> getPlayerEnemies(Long id) {
+        return playerRepository.findPlayerWhereFirstOrSecondIdIsNotId(id);
     }
 
 }

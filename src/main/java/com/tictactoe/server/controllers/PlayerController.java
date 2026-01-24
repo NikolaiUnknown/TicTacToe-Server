@@ -6,6 +6,7 @@ import com.tictactoe.server.mappers.PlayerMapper;
 import com.tictactoe.server.security.UserDetailsImpl;
 import com.tictactoe.server.services.PlayerService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -32,14 +33,21 @@ public class PlayerController {
     }
 
     @GetMapping("/leaders")
-    public ResponseEntity<List<PlayerResponseDto>> getLeaders(@RequestParam("page") Integer page){
-        var dto = playerMapper.playersToDtos(playerService.loadLeaders(page));
+    public ResponseEntity<Page<PlayerResponseDto>> getLeaders(@RequestParam("page") Integer page){
+
+        var dto = playerService.loadLeaders(page).map(playerMapper::toDto);
         return ResponseEntity.ok(dto);
     }
 
     @GetMapping("/leaders/{id}")
     public ResponseEntity<Integer> getPlaceInLeaderboard(@PathVariable("id") Long id){
         return ResponseEntity.ok(playerService.getPlaceInLeaderboard(id));
+    }
+
+    @GetMapping("/enemies/{id}")
+    public ResponseEntity<List<PlayerResponseDto>> getPlayerEnemies(@PathVariable("id") Long id){
+        var dto = playerMapper.playersToDtos(playerService.getPlayerEnemies(id));
+        return ResponseEntity.ok(dto);
     }
 
     @GetMapping("/stats/{id}")
