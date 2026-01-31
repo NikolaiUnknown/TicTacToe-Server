@@ -1,8 +1,10 @@
 package com.tictactoe.server.controllers;
 
+import com.tictactoe.server.dto.LeaderResponseDto;
 import com.tictactoe.server.dto.PlayerResponseDto;
 import com.tictactoe.server.dto.PlayerStatsResponseDto;
 import com.tictactoe.server.mappers.PlayerMapper;
+import com.tictactoe.server.models.Player;
 import com.tictactoe.server.security.UserDetailsImpl;
 import com.tictactoe.server.services.PlayerService;
 import lombok.RequiredArgsConstructor;
@@ -33,9 +35,11 @@ public class PlayerController {
     }
 
     @GetMapping("/leaders")
-    public ResponseEntity<Page<PlayerResponseDto>> getLeaders(@RequestParam("page") Integer page){
-
-        var dto = playerService.loadLeaders(page).map(playerMapper::toDto);
+    public ResponseEntity<Page<LeaderResponseDto>> getLeaders(@RequestParam("page") Integer page){
+        var dto = playerService.loadLeaders(page).map(
+                (Player player) -> new LeaderResponseDto(playerMapper.toDto(player),
+                        playerService.getPlayerStats(player.getId()))
+        );
         return ResponseEntity.ok(dto);
     }
 
