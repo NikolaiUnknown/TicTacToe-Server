@@ -1,4 +1,4 @@
-package com.tictactoe.server.dto;
+package com.tictactoe.server.dto.player;
 
 import java.io.Serializable;
 import java.util.Date;

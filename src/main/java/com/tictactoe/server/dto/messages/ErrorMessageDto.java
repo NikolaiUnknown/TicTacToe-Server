@@ -1,4 +1,4 @@
-package com.tictactoe.server.dto;
+package com.tictactoe.server.dto.messages;
 
 import java.util.Date;
 

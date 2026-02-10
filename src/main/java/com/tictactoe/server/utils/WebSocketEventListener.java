@@ -3,7 +3,7 @@ package com.tictactoe.server.utils;
 import com.tictactoe.server.core.DisconnectedPlayersManager;
 import com.tictactoe.server.core.GameCore;
 import com.tictactoe.server.core.UnstartedGamesManager;
-import com.tictactoe.server.dto.GameConnectionStatusMessageDto;
+import com.tictactoe.server.dto.messages.GameConnectionStatusMessageDto;
 import com.tictactoe.server.enums.ConnectionStatus;
 import com.tictactoe.server.exceptions.GameSessionNotFoundException;
 import com.tictactoe.server.security.UserDetailsImpl;

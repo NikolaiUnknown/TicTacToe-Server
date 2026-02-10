@@ -1,6 +1,6 @@
 package com.tictactoe.server.controllers;
 
-import com.tictactoe.server.dto.ErrorMessageDto;
+import com.tictactoe.server.dto.messages.ErrorMessageDto;
 import com.tictactoe.server.exceptions.WebSocketGameException;
 import com.tictactoe.server.services.WebSocketMessagingService;
 import lombok.RequiredArgsConstructor;

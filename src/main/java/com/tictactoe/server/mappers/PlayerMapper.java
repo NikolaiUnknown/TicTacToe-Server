@@ -1,8 +1,6 @@
 package com.tictactoe.server.mappers;
 
-import com.tictactoe.server.dto.GameResponseDto;
-import com.tictactoe.server.dto.PlayerResponseDto;
-import com.tictactoe.server.models.Game;
+import com.tictactoe.server.dto.player.PlayerResponseDto;
 import org.mapstruct.*;
 
 import com.tictactoe.server.dto.RegisterRequestDto;

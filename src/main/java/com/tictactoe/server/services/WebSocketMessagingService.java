@@ -1,9 +1,9 @@
 package com.tictactoe.server.services;
 
-import com.tictactoe.server.dto.ErrorMessageDto;
-import com.tictactoe.server.dto.GameConnectionStatusMessageDto;
-import com.tictactoe.server.dto.GameSessionStatusMessageDto;
-import com.tictactoe.server.dto.MoveMessageDto;
+import com.tictactoe.server.dto.messages.ErrorMessageDto;
+import com.tictactoe.server.dto.messages.GameConnectionStatusMessageDto;
+import com.tictactoe.server.dto.messages.GameSessionStatusMessageDto;
+import com.tictactoe.server.dto.messages.MoveMessageDto;
 
 public interface WebSocketMessagingService {
 

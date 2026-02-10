@@ -1,14 +1,14 @@
 package com.tictactoe.server.services.impl;
 
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
-import com.tictactoe.server.dto.PlayerStatsResponseDto;
-import com.tictactoe.server.enums.GameSessionStatus;
+import com.tictactoe.server.dto.player.PlayerLastGameResultResponseDto;
+import com.tictactoe.server.dto.player.PlayerStatsResponseDto;
 import com.tictactoe.server.enums.GameStatus;
 import com.tictactoe.server.models.Game;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.util.Pair;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +30,13 @@ public class PlayerServiceImpl implements PlayerService {
     public Player loadPlayerById(Long id) {
         return playerRepository.findById(id)
             .orElseThrow(PlayerNotFoundException::new);
+    }
+
+    @Override
+    public List<Player> loadPlayersByIds(List<Long> ids) {
+        var players = new ArrayList<Player>();
+        playerRepository.findAllById(ids).forEach(players::add);
+        return players;
     }
 
     @Override
@@ -87,6 +94,18 @@ public class PlayerServiceImpl implements PlayerService {
     @Override
     public List<Player> getPlayerEnemies(Long id) {
         return playerRepository.findPlayerWhereFirstOrSecondIdIsNotId(id);
+    }
+
+    @Override
+    public List<PlayerLastGameResultResponseDto> getPlayerLastEnemies(Long id, Integer count) {
+        return playerRepository.findPlayersWhereFirstOrSecondIdIsNotId(id, count);
+    }
+
+    @Override
+    public List<Player> getPlayersWithNearRating(Long id, Integer rating, Integer count, Integer difference) {
+        var players = playerRepository.findPlayersWhereRatingIsOnDifferent(id,rating,count,difference);
+        Collections.shuffle(players);
+        return players;
     }
 
 }

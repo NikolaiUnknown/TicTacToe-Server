@@ -49,6 +49,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/auth/**").permitAll()
                 .requestMatchers("/ws/connect/**").permitAll()
                 .requestMatchers("/api/v1/players/me").fullyAuthenticated()
+                .requestMatchers("/api/v1/players/enemies/last").fullyAuthenticated()
+                .requestMatchers("/api/v1/players/matchmaking").fullyAuthenticated()
                 .requestMatchers("/api/v1/players/**").permitAll()
                 .requestMatchers("/api/v1/games/players/**").permitAll()
                 .anyRequest().fullyAuthenticated()
