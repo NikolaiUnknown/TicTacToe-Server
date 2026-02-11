@@ -16,6 +16,9 @@ public interface GameRepository extends CrudRepository<Game,Long> {
 
     List<Game> findAllGamesBySecondPlayerIdAndStatus(Long id, GameStatus status);
 
+    List<Game> findAllGamesByFirstPlayerIdAndStatus(Long id, GameStatus status);
+
+
     @Query("""
             SELECT g
             FROM Game g

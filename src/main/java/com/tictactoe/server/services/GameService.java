@@ -14,6 +14,8 @@ public interface GameService {
 
     List<Game> getPropositions(Long userId);
 
+    List<Game> getProposedGames(Long userId);
+
     void registerGameResult(Long gameId, GameSessionStatus status);
 
     GameSession acceptProposition(Long gameId, Long playerId);

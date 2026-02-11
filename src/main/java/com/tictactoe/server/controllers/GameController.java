@@ -47,12 +47,22 @@ public class GameController {
 
     @GetMapping("/propositions")
     public ResponseEntity<List<GameResponseDto>> getPropositions(
-        @AuthenticationPrincipal UserDetailsImpl userDetails
+            @AuthenticationPrincipal UserDetailsImpl userDetails
     ){
         var games = gameMapper.gamesToDtos(
-            gameService.getPropositions(userDetails.getPlayer().getId())
+                gameService.getPropositions(userDetails.getPlayer().getId())
         );
-        return ResponseEntity.ok(games);    
+        return ResponseEntity.ok(games);
+    }
+
+    @GetMapping("/proposed")
+    public ResponseEntity<List<GameResponseDto>> getProposed(
+            @AuthenticationPrincipal UserDetailsImpl userDetails
+    ){
+        var games = gameMapper.gamesToDtos(
+                gameService.getProposedGames(userDetails.getPlayer().getId())
+        );
+        return ResponseEntity.ok(games);
     }
 
 

@@ -129,6 +129,11 @@ public class GameServiceImpl implements GameService{
     }
 
     @Override
+    public List<Game> getProposedGames(Long userId) {
+        return gameRepository.findAllGamesByFirstPlayerIdAndStatus(userId,GameStatus.PROPOSED);
+    }
+
+    @Override
     public List<Game> getAllGames(Long id) {
         return gameRepository.findGamesByPlayerId(id);
     }
