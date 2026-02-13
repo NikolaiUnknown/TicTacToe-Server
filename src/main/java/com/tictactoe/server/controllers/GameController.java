@@ -69,8 +69,15 @@ public class GameController {
 
     @PatchMapping("/confirm")
     public ResponseEntity<Void> confirmProposition(@RequestParam("game") Long gameId,
-                     @AuthenticationPrincipal UserDetailsImpl userDetails){
+                                                   @AuthenticationPrincipal UserDetailsImpl userDetails){
         gameService.acceptProposition(gameId,userDetails.getPlayer().getId());
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PatchMapping("/cancel")
+    public ResponseEntity<Void> cancelProposition(@RequestParam("game") Long gameId,
+                                                   @AuthenticationPrincipal UserDetailsImpl userDetails){
+        gameService.cancelProposition(gameId,userDetails.getPlayer().getId());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

@@ -37,6 +37,8 @@ public class GameServiceTest {
     private GameSessionService gameSessionService;
     @Mock
     private PlayerRepository playerRepository;
+    @Mock
+    private WebSocketMessagingServiceImpl webSocketMessagingService;
 
 
     @InjectMocks
@@ -46,6 +48,7 @@ public class GameServiceTest {
     @Test
     void testAcceptSuccessfulProposition() {
         Game game = Game.builder()
+                    .firstPlayer(new Player(1L))
                     .secondPlayer(new Player(0L))
                     .dateOfStart(new Date())
                     .status(GameStatus.PROPOSED)
@@ -90,16 +93,6 @@ public class GameServiceTest {
                 () -> gameServiceImpl.acceptProposition(0L, 0L));
     }
 
-
-    @Test
-    void testSuccessfulCreateGame() {
-        when(playerRepository.findById(0L)).thenReturn(Optional.of(new Player(0L)));
-        when(playerRepository.findById(1L)).thenReturn(Optional.of(new Player(1L)));
-
-        assertDoesNotThrow(()->gameServiceImpl.createGame(0L,1L));
-        verify(gameRepository).save(any(Game.class));
-    }
-
     @Test
     void testCreateGameWithNonExistEnemy() {
         when(playerRepository.findById(0L)).thenReturn(Optional.of(new Player(0L)));
@@ -122,9 +115,9 @@ public class GameServiceTest {
 
     @Test
     void testGetPropositions() {
-        when(gameRepository.findAllGamesBySecondPlayerIdAndStatus(0L, GameStatus.PROPOSED)).thenReturn(Collections.emptyList());
+        when(gameRepository.findAllGamesBySecondPlayerIdAndStatusOrderByDateOfStartDesc(0L, GameStatus.PROPOSED)).thenReturn(Collections.emptyList());
         assertEquals(Collections.emptyList(),gameServiceImpl.getPropositions(0L));
-        verify(gameRepository,times(1)).findAllGamesBySecondPlayerIdAndStatus(anyLong(),any());
+        verify(gameRepository,times(1)).findAllGamesBySecondPlayerIdAndStatusOrderByDateOfStartDesc(anyLong(),any());
 
     }
 

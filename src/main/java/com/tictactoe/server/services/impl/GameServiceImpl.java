@@ -1,8 +1,11 @@
 package com.tictactoe.server.services.impl;
 
 import com.tictactoe.server.core.GameSession;
+import com.tictactoe.server.dto.messages.PropositionMessageDto;
+import com.tictactoe.server.dto.messages.PropositionStatusMessageDto;
 import com.tictactoe.server.enums.GameSessionStatus;
 import com.tictactoe.server.enums.GameStatus;
+import com.tictactoe.server.enums.PropositionStatus;
 import com.tictactoe.server.exceptions.GameNotFoundException;
 import com.tictactoe.server.exceptions.InvalidGameStatusException;
 import com.tictactoe.server.exceptions.PlayerNotFoundException;
@@ -13,6 +16,7 @@ import com.tictactoe.server.repositories.GameRepository;
 import com.tictactoe.server.repositories.PlayerRepository;
 import com.tictactoe.server.services.GameService;
 import com.tictactoe.server.services.GameSessionService;
+import com.tictactoe.server.services.WebSocketMessagingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
@@ -30,6 +34,8 @@ public class GameServiceImpl implements GameService{
     private final GameRepository gameRepository;
     private final PlayerRepository playerRepository;
     private final GameSessionService gameSessionService;
+    private final WebSocketMessagingService webSocketMessagingService;
+
 
     @Value("${game.rating_increase}")
     private int ratingIncrease;
@@ -49,6 +55,7 @@ public class GameServiceImpl implements GameService{
                         .status(GameStatus.PROPOSED)
                         .build();
         gameRepository.save(game);
+        webSocketMessagingService.sendPropositionMessage(new PropositionMessageDto(game.getId(),firstPlayerId),secondPlayerId);
         return game.getId();
     }
 
@@ -94,12 +101,19 @@ public class GameServiceImpl implements GameService{
         }
         if (game.getStatus().equals(GameStatus.PROPOSED)) {
             game.setStatus(GameStatus.IN_PROCESS);
+            game.setDateOfStart(new Date());
             gameRepository.save(game);
+            webSocketMessagingService.sendPropositionStatusMessage(
+                    new PropositionStatusMessageDto(gameId, PropositionStatus.ACCEPT),
+                    game.getFirstPlayer().getId()
+            );
             return gameSessionService.createGameSession(game);
         } else{
             throw new InvalidGameStatusException(game.getStatus());
         }
     }
+
+
 
     @Override
     public void cancelGame(Long gameId) {
@@ -109,6 +123,25 @@ public class GameServiceImpl implements GameService{
             game.setStatus(GameStatus.CANCELED);
             gameRepository.save(game);
             gameSessionService.deleteGameSession(gameId);
+        } else{
+            throw new InvalidGameStatusException(game.getStatus());
+        }
+    }
+
+    @Override
+    public void cancelProposition(Long gameId, Long playerId) {
+        Game game = gameRepository.findById(gameId)
+                .orElseThrow(GameNotFoundException::new);
+        if (!game.getSecondPlayer().getId().equals(playerId) && !game.getFirstPlayer().getId().equals(playerId)) {
+            throw new AccessDeniedException("Game %s is forbidden for you".formatted(gameId));
+        }
+        if (game.getStatus().equals(GameStatus.PROPOSED)) {
+            game.setStatus(GameStatus.CANCELED);
+            gameRepository.save(game);
+            webSocketMessagingService.sendPropositionStatusMessage(
+                    new PropositionStatusMessageDto(gameId, PropositionStatus.CANCEL),
+                    game.getFirstPlayer().getId()
+            );
         } else{
             throw new InvalidGameStatusException(game.getStatus());
         }
@@ -125,12 +158,12 @@ public class GameServiceImpl implements GameService{
 
     @Override
     public List<Game> getPropositions(Long userId) {
-        return gameRepository.findAllGamesBySecondPlayerIdAndStatus(userId,GameStatus.PROPOSED);
+        return gameRepository.findAllGamesBySecondPlayerIdAndStatusOrderByDateOfStartDesc(userId,GameStatus.PROPOSED);
     }
 
     @Override
     public List<Game> getProposedGames(Long userId) {
-        return gameRepository.findAllGamesByFirstPlayerIdAndStatus(userId,GameStatus.PROPOSED);
+        return gameRepository.findAllGamesByFirstPlayerIdAndStatusOrderByDateOfStartDesc(userId,GameStatus.PROPOSED);
     }
 
     @Override

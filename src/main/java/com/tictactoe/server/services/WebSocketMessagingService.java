@@ -1,9 +1,7 @@
 package com.tictactoe.server.services;
 
-import com.tictactoe.server.dto.messages.ErrorMessageDto;
-import com.tictactoe.server.dto.messages.GameConnectionStatusMessageDto;
-import com.tictactoe.server.dto.messages.GameSessionStatusMessageDto;
-import com.tictactoe.server.dto.messages.MoveMessageDto;
+import com.tictactoe.server.dto.GameResponseDto;
+import com.tictactoe.server.dto.messages.*;
 
 public interface WebSocketMessagingService {
 
@@ -14,4 +12,8 @@ public interface WebSocketMessagingService {
     void sendConnectionStatusMessage(GameConnectionStatusMessageDto dto, Long gameId);
 
     void sendErrorMessage(ErrorMessageDto dto, Long playerId);
+
+    void sendPropositionMessage(PropositionMessageDto dto, Long playerId);
+
+    void sendPropositionStatusMessage(PropositionStatusMessageDto dto, Long playerId);
 }

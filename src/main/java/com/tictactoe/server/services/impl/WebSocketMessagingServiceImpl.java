@@ -1,9 +1,7 @@
 package com.tictactoe.server.services.impl;
 
-import com.tictactoe.server.dto.messages.ErrorMessageDto;
-import com.tictactoe.server.dto.messages.GameConnectionStatusMessageDto;
-import com.tictactoe.server.dto.messages.GameSessionStatusMessageDto;
-import com.tictactoe.server.dto.messages.MoveMessageDto;
+import com.tictactoe.server.dto.GameResponseDto;
+import com.tictactoe.server.dto.messages.*;
 import com.tictactoe.server.services.WebSocketMessagingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +18,8 @@ public class WebSocketMessagingServiceImpl implements WebSocketMessagingService 
     private final String GAME_STATUS_DESTINATION = "/game/status/%s";
     private final String CONNECTION_STATUS_DESTINATION = "/game/connection/%s";
     private final String PLAYER_ERROR_DESTINATION = "/errors/%s";
+    private final String PLAYER_PROPOSITIONS_DESTINATION = "/players/propositions/%s";
+    private final String PLAYER_PROPOSITION_STATUS_DESTINATION = "/players/status/%s";
 
     @Override
     public void sendMoveMessage(MoveMessageDto dto, Long gameId) {
@@ -40,4 +40,15 @@ public class WebSocketMessagingServiceImpl implements WebSocketMessagingService 
     public void sendErrorMessage(ErrorMessageDto dto, Long playerId) {
         simpMessagingTemplate.convertAndSend(PLAYER_ERROR_DESTINATION.formatted(playerId), dto);
     }
+
+    @Override
+    public void sendPropositionMessage(PropositionMessageDto dto, Long playerId) {
+        simpMessagingTemplate.convertAndSend(PLAYER_PROPOSITIONS_DESTINATION.formatted(playerId), dto);
+    }
+
+    @Override
+    public void sendPropositionStatusMessage(PropositionStatusMessageDto dto, Long playerId) {
+        simpMessagingTemplate.convertAndSend(PLAYER_PROPOSITION_STATUS_DESTINATION.formatted(playerId), dto);
+    }
+
 }

@@ -24,5 +24,7 @@ public interface GameService {
 
     void cancelGame(Long gameId);
 
+    void cancelProposition(Long gameId, Long playerId);
+
     List<Game> getGamesHistory(Long userId);
 }

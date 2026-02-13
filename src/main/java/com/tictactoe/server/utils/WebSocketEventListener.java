@@ -29,6 +29,7 @@ public class WebSocketEventListener {
 
     @EventListener
     public void handleEvent(SessionSubscribeEvent event){
+        if (event.getUser() == null) return;
         Long playerId = ((UserDetailsImpl)((Authentication)event.getUser()).getPrincipal()).getPlayer().getId();
         String subscribeDestination = event.getMessage().getHeaders().get("simpDestination").toString();
         if (subscribeDestination.startsWith("/game/moves/")){

@@ -14,9 +14,9 @@ import com.tictactoe.server.models.Game;
 @Repository
 public interface GameRepository extends CrudRepository<Game,Long> {
 
-    List<Game> findAllGamesBySecondPlayerIdAndStatus(Long id, GameStatus status);
+    List<Game> findAllGamesBySecondPlayerIdAndStatusOrderByDateOfStartDesc(Long secondPlayerId, GameStatus status);
 
-    List<Game> findAllGamesByFirstPlayerIdAndStatus(Long id, GameStatus status);
+    List<Game> findAllGamesByFirstPlayerIdAndStatusOrderByDateOfStartDesc(Long id, GameStatus status);
 
 
     @Query("""
