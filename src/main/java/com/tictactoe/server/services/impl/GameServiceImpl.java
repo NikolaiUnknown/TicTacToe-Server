@@ -157,6 +157,11 @@ public class GameServiceImpl implements GameService{
     }
 
     @Override
+    public Game getGameById(Long id) {
+        return gameRepository.findById(id).orElseThrow(GameNotFoundException::new);
+    }
+
+    @Override
     public List<Game> getPropositions(Long userId) {
         return gameRepository.findAllGamesBySecondPlayerIdAndStatusOrderByDateOfStartDesc(userId,GameStatus.PROPOSED);
     }

@@ -34,6 +34,14 @@ public class GameController {
         return ResponseEntity.ok(games);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<GameResponseDto> getGame(@PathVariable Long id){
+        var game = gameMapper.gameToDto(
+                gameService.getGameById(id)
+        );
+        return ResponseEntity.ok(game);
+    }
+
     @GetMapping("/players/{id}")
     public ResponseEntity<List<GameResponseDto>> getGamesHistory(
             @PathVariable("id") Long id
