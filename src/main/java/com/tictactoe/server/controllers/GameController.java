@@ -2,6 +2,8 @@ package com.tictactoe.server.controllers;
 
 import com.tictactoe.server.dto.CreateGameRequestDto;
 import com.tictactoe.server.dto.GameResponseDto;
+import com.tictactoe.server.dto.messages.MoveMessageDto;
+import com.tictactoe.server.enums.ConnectionStatus;
 import com.tictactoe.server.enums.GameFieldValue;
 import com.tictactoe.server.mappers.GameMapper;
 import com.tictactoe.server.security.UserDetailsImpl;
@@ -14,6 +16,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/v1/games")
@@ -42,6 +45,20 @@ public class GameController {
         return ResponseEntity.ok(game);
     }
 
+    @GetMapping("/board/{id}")
+    public ResponseEntity<Set<MoveMessageDto>> getGameBoard(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetailsImpl userDetails
+    ){
+        return ResponseEntity.ok(gameSessionService.getMoves(userDetails.getPlayer().getId(), id));
+    }
+
+    @GetMapping("/{gameId}/players/{playerId}/status")
+    public ResponseEntity<ConnectionStatus> getPlayerConnectionStatus(
+            @PathVariable Long gameId,
+            @PathVariable Long playerId){
+        return ResponseEntity.ok(gameSessionService.getPlayerConnectionStatus(gameId,playerId));
+    }
     @GetMapping("/players/{id}")
     public ResponseEntity<List<GameResponseDto>> getGamesHistory(
             @PathVariable("id") Long id

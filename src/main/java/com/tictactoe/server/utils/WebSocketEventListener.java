@@ -36,7 +36,7 @@ public class WebSocketEventListener {
             Long gameId = Long.parseLong(subscribeDestination.substring(12));
             String sessionId = getSessionId(event);
             if (disconnectedPlayersManager.isDisconnected(gameId,playerId)) {
-                var dto = new GameConnectionStatusMessageDto(ConnectionStatus.RECONNECTED,playerId);
+                var dto = new GameConnectionStatusMessageDto(ConnectionStatus.CONNECTED,playerId);
                 webSocketMessagingService.sendConnectionStatusMessage(dto,gameId);
                 disconnectedPlayersManager.remove(gameId,playerId);
             } else {

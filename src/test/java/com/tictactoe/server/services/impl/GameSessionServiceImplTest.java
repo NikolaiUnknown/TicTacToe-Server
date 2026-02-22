@@ -1,12 +1,10 @@
 package com.tictactoe.server.services.impl;
 
+import com.tictactoe.server.core.DisconnectedPlayersManager;
 import com.tictactoe.server.core.GameCore;
 import com.tictactoe.server.core.GameSession;
 import com.tictactoe.server.core.UnstartedGamesManager;
-import com.tictactoe.server.enums.GameCoord;
-import com.tictactoe.server.enums.GameFieldValue;
-import com.tictactoe.server.enums.GameSessionStatus;
-import com.tictactoe.server.enums.GameStatus;
+import com.tictactoe.server.enums.*;
 import com.tictactoe.server.exceptions.FieldIsAlreadyUsedException;
 import com.tictactoe.server.exceptions.GameSessionNotFoundException;
 import com.tictactoe.server.exceptions.NotSessionParticipantException;
@@ -39,6 +37,8 @@ class GameSessionServiceImplTest {
     private MessageCacheService messageCacheService;
     @Mock
     private UnstartedGamesManager unstartedGamesManager;
+    @Mock
+    private DisconnectedPlayersManager disconnectedPlayersManager;
 
     @InjectMocks
     private GameSessionServiceImpl gameSessionService;
@@ -132,4 +132,11 @@ class GameSessionServiceImplTest {
         assertThrows(GameSessionNotFoundException.class,
                 ()-> gameSessionService.moveInSession(0L, 0L, null));
     }
+
+    @Test
+    void testSuccessfulGetPlayerConnectionStatus() {
+        when(disconnectedPlayersManager.isDisconnected(0L,0L)).thenReturn(true);
+        assertEquals(ConnectionStatus.DISCONNECTED, gameSessionService.getPlayerConnectionStatus(0L,0L));
+    }
+
 }

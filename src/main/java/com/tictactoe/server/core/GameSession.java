@@ -12,7 +12,7 @@ import com.tictactoe.server.exceptions.PrematureMoveException;
 import lombok.Getter;
 
 public class GameSession {
-
+    @Getter
     private Map<GameCoord,GameFieldValue> gameBoard;
     @Getter
     private Map<Long,GameFieldValue> players;

@@ -1,6 +1,5 @@
 package com.tictactoe.server.services.impl;
 
-import com.tictactoe.server.dto.GameResponseDto;
 import com.tictactoe.server.dto.messages.*;
 import com.tictactoe.server.services.WebSocketMessagingService;
 import lombok.RequiredArgsConstructor;
