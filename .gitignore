@@ -1,5 +1,3 @@
-#CLEAR BEFORE MERGE MAIN
-init/
 HELP.md
 .gradle
 build/
